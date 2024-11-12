@@ -1,4 +1,4 @@
-package PolymorphicSimulation.Utils;
+package polymorphicSimulation.utils;
 
 
 public class MonteCarloRNG {
