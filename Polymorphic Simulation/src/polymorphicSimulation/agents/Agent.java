@@ -37,7 +37,7 @@ public abstract class Agent {
     public abstract void move(Map map); //Polymorphic method for agent movement
 
     protected boolean canMove(Point newLocation, Map map) {
-        return map.isTileFree(newLocation);
+        return map.isWithinBounds(newLocation);
     }
 
     protected void updateLocation(Point newLocation, Map map) {
@@ -180,6 +180,8 @@ public abstract class Agent {
         for (int i = 0; i < maxDistance; i++) {
             newLocation = calculateNextLocation(currentLocation, direction); // Calculate the next potential location - 1 step
 
+            System.out.println("Potential next step: " + newLocation + "(" + newLocation.x + ", " + newLocation.y + ")"); // debugging
+
             if (canMove(newLocation, map)) {
                 System.out.println("moveInDirection entered 1st if"); // debugging
                 Agent otherAgent = map.getAgentAt(newLocation); // Check for other agents at the target location BEFORE moving
@@ -200,7 +202,7 @@ public abstract class Agent {
 
         }
 
-        updateEp(map, currentLocation); //Make sure to update the agent's EP.
+        updateEp(map, currentLocation); // Update the agent's EP.
 
         return Objects.requireNonNullElseGet(newLocation, () -> new Point(location.x, location.y));
     }
