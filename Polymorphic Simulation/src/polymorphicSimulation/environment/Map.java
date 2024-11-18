@@ -194,4 +194,8 @@ public class Map {
         };
     }
 
+    public Set<Point> getObstacles(){
+        return obstacles;
+    }
+
 }

@@ -36,7 +36,7 @@ public abstract class Agent {
 
     public abstract void move(Map map); //Polymorphic method for agent movement
 
-    protected boolean canMove(Point newLocation, Map map) {
+    protected boolean withinBounds(Point newLocation, Map map) {
         return map.isWithinBounds(newLocation);
     }
 
@@ -173,6 +173,7 @@ public abstract class Agent {
         }
     }
 
+    // TODO: now fix the obstacles interaction
     protected Point moveInDirection(Map map, Direction direction, int maxDistance) {
         System.out.println(this.name + " moveInDirection method initiated");
         Point currentLocation = new Point(location.x, location.y);
@@ -182,16 +183,19 @@ public abstract class Agent {
 
             System.out.println("Potential next step: " + newLocation + "(" + newLocation.x + ", " + newLocation.y + ")"); // debugging
 
-            if (canMove(newLocation, map)) {
-                System.out.println("moveInDirection entered 1st if"); // debugging
+            if (withinBounds(newLocation, map)) {
                 Agent otherAgent = map.getAgentAt(newLocation); // Check for other agents at the target location BEFORE moving
                 System.out.println("otherAgent: " + otherAgent); // debugging
-                if (otherAgent != null && otherAgent != this) {
+                if (otherAgent != null && otherAgent != this) { // TODO: fix when the otherAgent is a Master or safe-zone
                     System.out.println("moveInDirection entered 2nd if: exchangeMessages");
                     exchangeMessages(otherAgent, map);
                     break; // Stop further movement for this step after interaction.
+                } else if (map.getObstacles().contains(newLocation)) { // check if there is obstacle in the next potential location
+                    System.out.println("Obstacle encountered at (" + newLocation.x + ", " + newLocation.y + ")");
+                    break;
                 }
 
+                System.out.println("MARK");
                 currentLocation = newLocation; // Update currentLocation after checking for agents and exchangeMessages.
                 updateLocation(currentLocation, map); // Then update location on map
                 transferMessagesToMaster(map); //Transfer messages after each step. Since it has a check if the agent is in a SafeZone it will work even if it is called here
