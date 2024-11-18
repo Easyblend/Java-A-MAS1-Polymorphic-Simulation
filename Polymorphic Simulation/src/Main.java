@@ -19,26 +19,22 @@ public class Main {
     public static void main(String[] args) {
         // 1. Map Setup
         System.out.println(Yellow+"Map Setup Initiated"+Reset);
-        Map map = new Map(MAP_WIDTH, MAP_HEIGHT); // Obstacles & SafeZones are generated within the map constructor
-        System.out.println("Obstacles & SafeZones are generated within the map constructor");
-
-        map.printMap(); //Print map after Obstacles & SafeZones are generated
+        Map map = new Map(MAP_WIDTH, MAP_HEIGHT);
         System.out.println(Green+"Map Setup Done"+Reset);
 
         // 2. Master Agent Creation and Placement
         System.out.println(Yellow+"Master Agent Creation and Placement Initiated"+Reset);
         placeMasters(map);
-
-        map.printMap();
         System.out.println(Green+"Master Agent Creation and Placement Done"+Reset);
 
+        // 2.1. Generate Obstacles
+        System.out.println(Yellow+"Generate Obstacles Initiated"+Reset);
+        map.generateObstacles();
         System.out.println(Green+"Generate Obstacles Done"+Reset);
 
         // 3. Agent Creation and Placement
         System.out.println(Yellow+"Agent Creation and Placement Initiated"+Reset);
         List<Agent> agents = createAgents(map);
-
-        map.printMap(); //Print map after Masters & Agents have been placed
         System.out.println(Green+"Agent Creation and Placement Done"+Reset);
 
         // 4. Simulation Loop
@@ -119,8 +115,6 @@ public class Main {
             // Print master messages at the start of each step
             printMasterMessages(map);
 
-            printAgentStatus(agents);
-
             Collections.shuffle(agents); // Randomize agent order
 
             for (Agent agent : agents) {
@@ -134,7 +128,7 @@ public class Main {
                 return true;
             }
             try {
-                Thread.sleep(0); // Delay as needed (in milliseconds)
+                Thread.sleep(500); // Delay as needed (in milliseconds)
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -151,13 +145,6 @@ public class Main {
         }
     }
 
-    private static void printAgentStatus(List<Agent> agents) {
-        for (Agent agent : agents) {
-            if (!(agent instanceof Master)) { // Exclude Masters (already printed)
-                System.out.println(agent.name + " (" + agent.group + ") at (" + agent.location.x + ", " + agent.location.y + ") EP: " + agent.getEp() + ". Messages: " + agent.getMessages());
-            }
-        }
-    }
 
     private static boolean checkWinCondition(Map map) {
         String[] groups = {"Human", "Elf", "Orc", "Goblin"};
