@@ -11,9 +11,9 @@ public class Main {
 
     private static final int MAP_WIDTH = 14;
     private static final int MAP_HEIGHT = 8;
-    private static final int MAX_AGENTS = 2; //per group
+    private static final int MAX_AGENTS = 4; //per group
     private static final int INITIAL_EP = 100;
-    private static final int MAX_SIMULATION_STEPS = 50;
+    private static final int MAX_SIMULATION_STEPS = 1000;
 
 
     public static void main(String[] args) {
@@ -43,13 +43,15 @@ public class Main {
 
         // 4. Simulation Loop
         System.out.println(Yellow+"Simulation Loop Initiated"+Reset);
-        runSimulation(map, agents);
+        boolean winnerFound = runSimulation(map, agents); // Store result of runSimulation
         System.out.println(Green+"Simulation Loop Done"+Reset);
 
         // 5. Determine Winner
-        System.out.println(Yellow+"Determine Winner Initiated"+Reset);
-        determineWinner(map);
-        System.out.println(Green+"Determine Winner Done"+Reset);
+        if (!winnerFound) { // Call only if no winner during simulation
+            System.out.println(Yellow+"Determine Winner Initiated"+Reset);
+            determineWinner(map);
+            System.out.println(Green+"Determine Winner Done"+Reset);
+        }
     }
 
     private static List<Agent> createAgents(Map map) {
@@ -108,9 +110,8 @@ public class Main {
         return location;
     }
 
-    private static void runSimulation(Map map, List<Agent> agents) {
-        Random random = new Random();
-//        Scanner scanner = new Scanner(System.in); // Scanner for pausing
+    private static boolean runSimulation(Map map, List<Agent> agents) {
+//        Random random = new Random();
 
         for (int step = 0; step < MAX_SIMULATION_STEPS; step++) {
             System.out.println("Simulation Step: " + (step + 1));
@@ -130,18 +131,15 @@ public class Main {
 
             // Check for win condition after each step
             if (checkWinCondition(map)) {
-                return;
+                return true;
             }
             try {
                 Thread.sleep(0); // Delay as needed (in milliseconds)
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
-//            System.out.print("Press Enter to continue...");
-//            scanner.nextLine(); // Pause until Enter is pressed
         }
-//        scanner.close(); // Close the Scanner
+        return false; // No winner found during simulation
     }
 
     private static void printMasterMessages(Map map) {
@@ -169,7 +167,8 @@ public class Main {
             Master master = SingletonMasterFactory.getMasterInstance(group, map.getSafeZoneLocation(group), INITIAL_EP);
 
             if (master.getMessages().size() == totalMessages) {
-                System.out.println("Group " + group + " wins! (Master collected all messages)");
+                System.out.println(Green+"Group " + group + " wins! (Master collected all messages)"+Reset);
+                printMasterMessages(map);
                 return true; // End the simulation
             }
         }
@@ -194,8 +193,6 @@ public class Main {
             }
         }
 
-        printMasterMessages(map);
-
         if (winningGroups.isEmpty()) {
             System.out.println("No winner. No Master collected any messages.");
         } else if (winningGroups.size() == 1) {
@@ -210,5 +207,6 @@ public class Main {
             }
             System.out.println(" (Collected " + maxMessages + " messages each)");
         }
+        printMasterMessages(map);
     }
 }

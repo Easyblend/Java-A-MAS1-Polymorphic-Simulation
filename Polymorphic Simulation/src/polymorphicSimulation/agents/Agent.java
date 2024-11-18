@@ -159,7 +159,7 @@ public abstract class Agent {
         System.out.println("transferMessagesToMaster method initiated");
         if (this instanceof Master) return; // Masters don't transfer messages to themselves
 
-        System.out.println("transferMessagesToMasters 2");
+        System.out.println("transferMessagesToMaster 2");
 
         Master master = SingletonMasterFactory.getMasterInstance(group, map.getSafeZoneLocation(group), initialEp); // Make sure initialEp is passed correctly
 
