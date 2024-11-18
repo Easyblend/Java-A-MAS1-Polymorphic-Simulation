@@ -11,7 +11,12 @@ public class Master extends Agent {
 
     @Override
     public void move(Map map) {
-        // Masters don't move, so this method is empty
+//         Masters don't move, so this method is empty
+    }
+
+    @Override
+    protected void generateMessages() {
+//        No messages generated for Masters
     }
 
     public void receiveMessage(String message) {
@@ -20,5 +25,5 @@ public class Master extends Agent {
         }
     }
 
-    // You can add other Master-specific methods here, like checking for a win condition
+    // Can add other Master-specific methods here, like checking for a win condition
 }

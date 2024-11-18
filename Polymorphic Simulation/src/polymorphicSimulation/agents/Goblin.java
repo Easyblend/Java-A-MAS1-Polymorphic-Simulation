@@ -17,18 +17,18 @@ public class Goblin extends Agent {
 
     @Override
     public void move(Map map) {
-        System.out.println(BrightYellow+name + " starting move at (" + location.x + ", " + location.y + ")"+Reset);
+        System.out.println(BrightYellow+name + " starting move at (" + location.x + ", " + location.y + ")"+Reset); // debugging
         if (getEp() <= 0) return;
 
         // Random movement (any direction, 1-3 tiles)
         Direction direction = Direction.values()[random.nextInt(Direction.values().length)]; // Any direction
         int maxDistance = random.nextInt(3) + 1;
 
+        System.out.println(name + " planning to move " + maxDistance + " steps "+ direction +Reset); // debugging
 
         Point newLocation = moveInDirection(map, direction, maxDistance);
 
-
         lastDirection = direction;
-        System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ")"+Reset);
+        System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ")"+Reset); // debugging
     }
 }

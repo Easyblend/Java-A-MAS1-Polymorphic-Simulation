@@ -30,13 +30,21 @@ public class Map {
     }
 
 
+//    public boolean isTileFree(Point location) {
+//        boolean inBounds = isWithinBounds(location);
+//        boolean notObstacle = !obstacles.contains(location);
+//        boolean notAgent = isWithinBounds(location) && grid[location.y][location.x] == null; // Null check
+//        System.out.println("Location (" + location.x + ", " + location.y + "): inBounds=" + inBounds +
+//                ", notObstacle=" + notObstacle + ", notAgent=" + notAgent);
+//        return inBounds && notObstacle && notAgent;
+//    }
+
     public boolean isTileFree(Point location) {
-        boolean inBounds = isWithinBounds(location);
-        boolean notObstacle = !obstacles.contains(location);
-        boolean notAgent = isWithinBounds(location) && grid[location.y][location.x] == null; // Null check
-        System.out.println("Location (" + location.x + ", " + location.y + "): inBounds=" + inBounds +
-                ", notObstacle=" + notObstacle + ", notAgent=" + notAgent);
-        return inBounds && notObstacle && notAgent;
+        if (!isWithinBounds(location)) { // Check bounds first
+            return false;
+        }
+        // Only return true if within bounds and the location is empty (i.e. not obstacle and not agent)
+        return  !obstacles.contains(location) && grid[location.y][location.x] == null;
     }
 
     public boolean isWithinBounds(Point location) {
@@ -68,34 +76,26 @@ public class Map {
 
 
     public void generateObstacles() {
+        System.out.println("Generating Obstacles"); // debugging
         int numObstacles = (int) (width * height * 0.05); // 5% of the map are obstacles (adjust as needed)
+
+        // debugging
+        System.out.println("numObstacles=" + numObstacles);
 
         for (int i = 0; i < numObstacles; i++) {
             int x = random.nextInt(width);
             int y = random.nextInt(height);
             Point location = new Point(x, y);
-
+            System.out.println("Obstacle Point " + location.x + ", " + location.y);
             // Ensure obstacles don't overlap SafeZones or other obstacles.
             if (!safeZones.containsValue(location) && !obstacles.contains(location) && grid[y][x] == null) {
-                obstacles.add(location);
+//                obstacles.add(location);
+                addObstacle(location);
             } else { //Try again if an obstacle is on a forbidden place
                 i--;
             }
         }
     }
-
-//    public void placeAgent(Agent agent) {
-//        if (isTileFree(agent.location)) {
-//            grid[agent.location.y][agent.location.x] = agent;
-//            System.out.println(agent.name + " placed at (" + agent.location.x + ", " + agent.location.y + ")");
-//        } else {
-//            // Handle the case where the agent can't be placed at the initial spot
-//            // Find a new valid random spot for the agent (Example below).
-//            Point newLocation = findValidRandomSpot();
-//            agent.location = newLocation;
-//            placeAgent(agent);
-//        }
-//    }
 
     public void placeAgent(Agent agent) {
             grid[agent.location.y][agent.location.x] = agent;
@@ -127,25 +127,49 @@ public class Map {
     }
 
     // Add a method to print the map to the console (for visualization)
+// In the Map class
     public void printMap() {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 Point currentPoint = new Point(x, y);
+
+                boolean printed = false; // Flag to track if something has been printed at this location
+
+
                 if (grid[y][x] != null) {
-                    System.out.print(colorAgentSymbol(getAgentSymbol(grid[y][x]))+ " " + Reset);
-                } else if (obstacles.contains(currentPoint)) {
-                    System.out.print(Red+"# "+Reset);
-                } else if (safeZones.containsValue(currentPoint)){
-                    for (java.util.Map.Entry<String, Point> entry : safeZones.entrySet()) {
+                    System.out.print(colorAgentSymbol(getAgentSymbol(grid[y][x])) + "  " + Reset);
+                    printed = true;
+                }
+
+
+                // Iterate through the obstacles set
+                for (Point obstacleLocation : obstacles) {
+//                    System.out.println("currentPoint " + currentPoint.x + ", " + currentPoint.y);
+//                    System.out.println("obstacleLocation " + obstacleLocation.x + ", " + obstacleLocation.y);
+//                    System.out.println("obstacleLocation is: " + obstacleLocation + ", currentPoint is: " + currentPoint);
+//                    System.out.println("before if, obstacleLocation=" + obstacleLocation + ", currentPoint=" + currentPoint);
+//                    if (obstacleLocation.equals(currentPoint)) { // Check with .equals
+//                    if (obstacleLocation.x == currentPoint.x && obstacleLocation.y == currentPoint.y) { // Check with .equals
+                        if (obstacleLocation.equals(currentPoint)) {  // Use .equals() here
+                        System.out.print(Red + "#  " + Reset);
+                        printed = true;
+                        break; // Exit the inner loop after printing the obstacle
+                    }
+                }
+
+
+                if (!printed) { //If nothing was printed at the currentPoint print the default character or check for safeZones.
+                    boolean isSafeZone = false;
+                    for (var entry : safeZones.entrySet()) {
                         if (entry.getValue().equals(currentPoint)) {
-                            System.out.print("S_" + entry.getKey().charAt(0) + " ");
+                            System.out.print("S" + entry.getKey().charAt(0) + " ");
+                            isSafeZone = true;
                             break;
                         }
                     }
-                }
-                else {
-                    System.out.print((char) 46);  // Print dot using ASCII code 46
-                    System.out.print((char) 32);  // Print space using ASCII code 32
+                    if (!isSafeZone) {
+                        System.out.print(".  ");
+                    }
                 }
             }
             System.out.println();

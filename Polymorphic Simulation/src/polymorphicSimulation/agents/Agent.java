@@ -92,7 +92,7 @@ public abstract class Agent {
     }
 
     private void transferMessages(Agent loser, Agent winner, int numMessages) {
-        System.out.println("TransferMessage method initiated");
+        System.out.println("TransferMessage method initiated. Agent Winner: " + winner + ", agent loser: " + loser + ", numMessages: " + numMessages);
         if (numMessages <= 0) return;
 
         Random random = new Random();
@@ -145,7 +145,7 @@ public abstract class Agent {
     }
 
     protected void generateMessages() {
-        System.out.println("GENERATING MESSAGES INITIATED");
+        System.out.println("GENERATING MESSAGES for " + name + " INITIATED");
         int numMessages = random.nextInt(MAX_MESSAGES) + 1; // Generates 1 to MAX_MESSAGES
 
         for (int i = 0; i < numMessages; i++) {
@@ -164,6 +164,7 @@ public abstract class Agent {
 
         if (map.isInSafeZone(location, group)) {
             for (String message : getMessages()) {
+                System.out.println("Master " + master.name + "receive Message method initiated");
                 master.receiveMessage(message);
                 this.messages.remove(message); //Removing the message from the agent after transferring it
                 System.out.println(this.name + " transferred a message to Master " + master.name + "."); // Print transfer
@@ -173,28 +174,35 @@ public abstract class Agent {
     }
 
     protected Point moveInDirection(Map map, Direction direction, int maxDistance) {
+        System.out.println(this.name + " moveInDirection method initiated");
         Point currentLocation = new Point(location.x, location.y);
+        Point newLocation = null;
         for (int i = 0; i < maxDistance; i++) {
-            Point nextLocation = calculateNextLocation(currentLocation, direction);
+            newLocation = calculateNextLocation(currentLocation, direction); // Calculate the next potential location - 1 step
 
-            if (canMove(nextLocation, map)) {
-                currentLocation = nextLocation; //Update the location before checking for agents
-                updateLocation(currentLocation, map);
-                Agent otherAgent = map.getAgentAt(currentLocation); // Check for agent at new location
-
+            if (canMove(newLocation, map)) {
+                System.out.println("moveInDirection entered 1st if"); // debugging
+                Agent otherAgent = map.getAgentAt(newLocation); // Check for other agents at the target location BEFORE moving
+                System.out.println("otherAgent: " + otherAgent); // debugging
                 if (otherAgent != null && otherAgent != this) {
+                    System.out.println("moveInDirection entered 2nd if: exchangeMessages");
                     exchangeMessages(otherAgent, map);
                     break; // Stop further movement for this step after interaction.
                 }
 
+                currentLocation = newLocation; // Update currentLocation after checking for agents and exchangeMessages.
+                updateLocation(currentLocation, map); // Then update location on map
+                transferMessagesToMaster(map); //Transfer messages after each step. Since it has a check if the agent is in a SafeZone it will work even if it is called here
             } else {
+                System.out.println("moveInDirection entered else"); // debugging
                 break; // Stop if blocked
             }
+
         }
 
-        transferMessagesToMaster(map);
-        updateEp(map, currentLocation);
-        return currentLocation;
+        updateEp(map, currentLocation); //Make sure to update the agent's EP.
+
+        return Objects.requireNonNullElseGet(newLocation, () -> new Point(location.x, location.y));
     }
 
     private Point calculateNextLocation(Point current, Direction direction) {
