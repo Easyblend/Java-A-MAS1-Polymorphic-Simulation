@@ -26,8 +26,9 @@ public class Elf extends Agent {
 
         int maxDistance = random.nextInt(3) + 1; // 1-3 tiles
 
-        Point newLocation = moveInDirection(map, direction, maxDistance);
+        System.out.println(name + " planning to move " + maxDistance + " steps "+ direction +Reset); // debugging
 
+        Point newLocation = moveInDirection(map, direction, maxDistance);
 
         lastDirection = direction;
         System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ")"+Reset);

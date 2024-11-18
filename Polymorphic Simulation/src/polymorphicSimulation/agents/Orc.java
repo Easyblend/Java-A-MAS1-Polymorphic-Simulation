@@ -24,6 +24,8 @@ public class Orc extends Agent {
         List<Direction> possibleDirections = List.of(Direction.values());
         Direction direction = possibleDirections.get(random.nextInt(possibleDirections.size()));
 
+        System.out.println(name + " planning to move 1 step "+ direction +Reset); // debugging
+
         Point newLocation = moveInDirection(map, direction, 1); // Max distance is always 1 for King
 
         lastDirection = direction;

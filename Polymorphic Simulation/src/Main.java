@@ -59,7 +59,15 @@ public class Main {
 
         for (String group : groups) {
             for (int i = 0; i < MAX_AGENTS; i++) {
+                String groupName = group; //The group name of the agent
+                if (i < 4) { //The number of initial safeZones
+                    groupName = groupName + i; //Modify group name so that the agents are placed correctly to the initially designated safeZones.
+                }
+
+
                 Point location = findValidRandomSpot(map); //Helper method to find open spots
+
+
                 Agent agent = switch (group) {
                     case "Human" -> new Human("Human" + i, group, location, INITIAL_EP);
                     case "Elf" -> new Elf("Elf" + i, group, location, INITIAL_EP);
@@ -67,8 +75,12 @@ public class Main {
                     case "Goblin" -> new Goblin("Goblin" + i, group, location, INITIAL_EP);
                     default -> throw new IllegalStateException("Unexpected value: " + group);
                 };
-                agents.add(agent);
+
+
+                agent.location = location; // Set location *after* agent creation.
                 map.placeAgent(agent);
+                agents.add(agent);
+
             }
         }
         return agents;
@@ -164,24 +176,39 @@ public class Main {
         return false;
     }
 
-    private static void determineWinner(Map map) {  // need fixing in case of 2+ winners, it only displays 1 now
+    private static void determineWinner(Map map) {
         String[] groups = {"Human", "Elf", "Orc", "Goblin"};
-        String winningGroup = null;
+        List<String> winningGroups = new ArrayList<>(); // List to store potential multiple winners
         int maxMessages = 0;
 
         for (String group : groups) {
             Master master = SingletonMasterFactory.getMasterInstance(group, map.getSafeZoneLocation(group), INITIAL_EP);
             int numMessages = master.getMessages().size();
+
             if (numMessages > maxMessages) {
-                maxMessages = numMessages;
-                winningGroup = group;
+                winningGroups.clear();      // Clear previous winners
+                winningGroups.add(group);   // Add current group as the sole winner (so far)
+                maxMessages = numMessages; // Update maxMessages
+            } else if (numMessages == maxMessages && numMessages > 0) {
+                winningGroups.add(group); // Add current group to list of winners (tie)
             }
         }
 
-        if (winningGroup != null) {
-            System.out.println("Group " + winningGroup + " wins! (Collected most messages: " + maxMessages + ")");
-        } else {
+        printMasterMessages(map);
+
+        if (winningGroups.isEmpty()) {
             System.out.println("No winner. No Master collected any messages.");
+        } else if (winningGroups.size() == 1) {
+            System.out.println("Group " + winningGroups.get(0) + " wins! (Collected most messages: " + maxMessages + ")");
+        } else {
+            System.out.print("It's a tie! Winning groups: ");
+            for (int i = 0; i < winningGroups.size(); i++) {
+                System.out.print(winningGroups.get(i));
+                if (i < winningGroups.size() - 1) {
+                    System.out.print(", ");
+                }
+            }
+            System.out.println(" (Collected " + maxMessages + " messages each)");
         }
     }
 }

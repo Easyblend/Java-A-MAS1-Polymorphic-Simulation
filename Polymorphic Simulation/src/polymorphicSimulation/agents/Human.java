@@ -26,6 +26,8 @@ public class Human extends Agent {
 
         int maxDistance = random.nextInt(3) + 1; // 1-3 tiles
 
+        System.out.println(name + " planning to move " + maxDistance + " steps "+ direction +Reset); // debugging
+
         Point newLocation = moveInDirection(map, direction, maxDistance);
 
         lastDirection = direction; // Update lastDirection

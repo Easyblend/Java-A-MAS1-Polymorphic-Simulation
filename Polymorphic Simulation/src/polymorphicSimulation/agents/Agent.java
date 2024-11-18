@@ -145,7 +145,6 @@ public abstract class Agent {
     }
 
     protected void generateMessages() {
-        System.out.println("GENERATING MESSAGES for " + name + " INITIATED");
         int numMessages = random.nextInt(MAX_MESSAGES) + 1; // Generates 1 to MAX_MESSAGES
 
         for (int i = 0; i < numMessages; i++) {
@@ -154,15 +153,23 @@ public abstract class Agent {
                 messages.add(newMessage);
             }
         }
-        System.out.println("GENERATING MESSAGES DONE");
     }
 
     public void transferMessagesToMaster(Map map) {
         System.out.println("transferMessagesToMaster method initiated");
-        if (this instanceof Master) return; //Masters don't transfer messages to themselves
+        if (this instanceof Master) return; // Masters don't transfer messages to themselves
+
+        System.out.println("transferMessagesToMasters 2");
+
         Master master = SingletonMasterFactory.getMasterInstance(group, map.getSafeZoneLocation(group), initialEp); // Make sure initialEp is passed correctly
 
+
+        System.out.println("location: (" + location.x + ", " + location.y + "), group: " + group);
+        System.out.println("map.isInSafeZone(location, group) " + map.isInSafeZone(location, group)); // debugging
+        System.out.println(map.getSafeZoneLocation(group));
+
         if (map.isInSafeZone(location, group)) {
+            System.out.println("transferMessagesToMaster entered if"); // debugging
             for (String message : getMessages()) {
                 System.out.println("Master " + master.name + "receive Message method initiated");
                 master.receiveMessage(message);
@@ -181,13 +188,11 @@ public abstract class Agent {
         for (int i = 0; i < maxDistance; i++) {
             newLocation = calculateNextLocation(currentLocation, direction); // Calculate the next potential location - 1 step
 
-            System.out.println("Potential next step: " + newLocation + "(" + newLocation.x + ", " + newLocation.y + ")"); // debugging
+            System.out.println("Potential next step: (" + newLocation.x + ", " + newLocation.y + ")"); // debugging
 
             if (withinBounds(newLocation, map)) {
                 Agent otherAgent = map.getAgentAt(newLocation); // Check for other agents at the target location BEFORE moving
-                System.out.println("otherAgent: " + otherAgent); // debugging
                 if (otherAgent != null && otherAgent != this) { // TODO: fix when the otherAgent is a Master or safe-zone
-                    System.out.println("moveInDirection entered 2nd if: exchangeMessages");
                     exchangeMessages(otherAgent, map);
                     break; // Stop further movement for this step after interaction.
                 } else if (map.getObstacles().contains(newLocation)) { // check if there is obstacle in the next potential location
@@ -195,13 +200,12 @@ public abstract class Agent {
                     break;
                 }
 
-                System.out.println("MARK");
                 currentLocation = newLocation; // Update currentLocation after checking for agents and exchangeMessages.
                 updateLocation(currentLocation, map); // Then update location on map
                 transferMessagesToMaster(map); //Transfer messages after each step. Since it has a check if the agent is in a SafeZone it will work even if it is called here
             } else {
-                System.out.println("moveInDirection entered else"); // debugging
-                break; // Stop if blocked
+                System.out.println("Cannot Move Outside");
+                break; // Stop if blocked (outside map)
             }
 
         }
