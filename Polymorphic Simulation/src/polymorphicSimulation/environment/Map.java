@@ -114,6 +114,7 @@ public class Map {
     }
 
     public Agent getAgentAt(Point location) {
+        System.out.println("getAgentAt(" + location + " (" + location.x + ", " + location.y + ") " + grid[location.y][location.x]);
         if (isWithinBounds(location)) {
             return grid[location.y][location.x];
         }
@@ -191,6 +192,10 @@ public class Map {
             case 'g' -> BrightYellow+inputChar;
             default -> String.valueOf(inputChar);
         };
+    }
+
+    public Set<Point> getObstacles(){
+        return obstacles;
     }
 
 }
