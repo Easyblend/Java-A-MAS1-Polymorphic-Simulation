@@ -11,9 +11,9 @@ public class Main {
 
     private static final int MAP_WIDTH = 14;
     private static final int MAP_HEIGHT = 8;
-    private static final int MAX_AGENTS = 2; //per group
+    private static final int MAX_AGENTS = 4; //per group
     private static final int INITIAL_EP = 100;
-    private static final int MAX_SIMULATION_STEPS = 50;
+    private static final int MAX_SIMULATION_STEPS = 1000;
 
 
     public static void main(String[] args) {
@@ -39,13 +39,15 @@ public class Main {
 
         // 4. Simulation Loop
         System.out.println(Yellow+"Simulation Loop Initiated"+Reset);
-        runSimulation(map, agents);
+        boolean winnerFound = runSimulation(map, agents); // Store result of runSimulation
         System.out.println(Green+"Simulation Loop Done"+Reset);
 
         // 5. Determine Winner
-        System.out.println(Yellow+"Determine Winner Initiated"+Reset);
-        determineWinner(map);
-        System.out.println(Green+"Determine Winner Done"+Reset);
+        if (!winnerFound) { // Call only if no winner during simulation
+            System.out.println(Yellow+"Determine Winner Initiated"+Reset);
+            determineWinner(map);
+            System.out.println(Green+"Determine Winner Done"+Reset);
+        }
     }
 
     private static List<Agent> createAgents(Map map) {
@@ -55,7 +57,15 @@ public class Main {
 
         for (String group : groups) {
             for (int i = 0; i < MAX_AGENTS; i++) {
+                String groupName = group; //The group name of the agent
+                if (i < 4) { //The number of initial safeZones
+                    groupName = groupName + i; //Modify group name so that the agents are placed correctly to the initially designated safeZones.
+                }
+
+
                 Point location = findValidRandomSpot(map); //Helper method to find open spots
+
+
                 Agent agent = switch (group) {
                     case "Human" -> new Human("Human" + i, group, location, INITIAL_EP);
                     case "Elf" -> new Elf("Elf" + i, group, location, INITIAL_EP);
@@ -63,8 +73,12 @@ public class Main {
                     case "Goblin" -> new Goblin("Goblin" + i, group, location, INITIAL_EP);
                     default -> throw new IllegalStateException("Unexpected value: " + group);
                 };
-                agents.add(agent);
+
+
+                agent.location = location; // Set location *after* agent creation.
                 map.placeAgent(agent);
+                agents.add(agent);
+
             }
         }
         return agents;
@@ -92,9 +106,8 @@ public class Main {
         return location;
     }
 
-    private static void runSimulation(Map map, List<Agent> agents) {
-        Random random = new Random();
-//        Scanner scanner = new Scanner(System.in); // Scanner for pausing
+    private static boolean runSimulation(Map map, List<Agent> agents) {
+//        Random random = new Random();
 
         for (int step = 0; step < MAX_SIMULATION_STEPS; step++) {
             System.out.println("Simulation Step: " + (step + 1));
@@ -112,18 +125,15 @@ public class Main {
 
             // Check for win condition after each step
             if (checkWinCondition(map)) {
-                return;
+                return true;
             }
             try {
                 Thread.sleep(500); // Delay as needed (in milliseconds)
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
-//            System.out.print("Press Enter to continue...");
-//            scanner.nextLine(); // Pause until Enter is pressed
         }
-//        scanner.close(); // Close the Scanner
+        return false; // No winner found during simulation
     }
 
     private static void printMasterMessages(Map map) {
@@ -144,7 +154,8 @@ public class Main {
             Master master = SingletonMasterFactory.getMasterInstance(group, map.getSafeZoneLocation(group), INITIAL_EP);
 
             if (master.getMessages().size() == totalMessages) {
-                System.out.println("Group " + group + " wins! (Master collected all messages)");
+                System.out.println(Green+"Group " + group + " wins! (Master collected all messages)"+Reset);
+                printMasterMessages(map);
                 return true; // End the simulation
             }
         }
@@ -153,22 +164,36 @@ public class Main {
 
     private static void determineWinner(Map map) {
         String[] groups = {"Human", "Elf", "Orc", "Goblin"};
-        String winningGroup = null;
-        int maxMessages = -1;
+        List<String> winningGroups = new ArrayList<>(); // List to store potential multiple winners
+        int maxMessages = 0;
 
         for (String group : groups) {
             Master master = SingletonMasterFactory.getMasterInstance(group, map.getSafeZoneLocation(group), INITIAL_EP);
             int numMessages = master.getMessages().size();
+
             if (numMessages > maxMessages) {
-                maxMessages = numMessages;
-                winningGroup = group;
+                winningGroups.clear();      // Clear previous winners
+                winningGroups.add(group);   // Add current group as the sole winner (so far)
+                maxMessages = numMessages; // Update maxMessages
+            } else if (numMessages == maxMessages && numMessages > 0) {
+                winningGroups.add(group); // Add current group to list of winners (tie)
             }
         }
 
-        if (winningGroup != null) {
-            System.out.println("Group " + winningGroup + " wins! (Collected most messages: " + maxMessages + ")");
-        } else {
+        if (winningGroups.isEmpty()) {
             System.out.println("No winner. No Master collected any messages.");
+        } else if (winningGroups.size() == 1) {
+            System.out.println("Group " + winningGroups.get(0) + " wins! (Collected most messages: " + maxMessages + ")");
+        } else {
+            System.out.print("It's a tie! Winning groups: ");
+            for (int i = 0; i < winningGroups.size(); i++) {
+                System.out.print(winningGroups.get(i));
+                if (i < winningGroups.size() - 1) {
+                    System.out.print(", ");
+                }
+            }
+            System.out.println(" (Collected " + maxMessages + " messages each)");
         }
+        printMasterMessages(map);
     }
 }

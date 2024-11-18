@@ -52,14 +52,21 @@ public class Map {
     }
 
     public boolean isInSafeZone(Point location, String group) {
-        if (getSafeZoneLocation(group) == null)
-            return false;
-        return location.equals(safeZones.get(group));
-
+        for (java.util.Map.Entry<String, Point> entry : safeZones.entrySet()) {
+            if (entry.getKey().startsWith(group) && entry.getValue().equals(location)) { //Check if group name starts with the provided String
+                return true;
+            }
+        }
+        return false;
     }
 
     public Point getSafeZoneLocation(String group) {
-        return safeZones.get(group);
+        for (java.util.Map.Entry<String, Point> entry : safeZones.entrySet()) {
+            if (entry.getKey().equals(group)) {
+                return entry.getValue();
+            }
+        }
+        return null; // Or throw an exception, or return a default safe zone. Handle appropriately
     }
 
     public void addObstacle(Point location) {
@@ -67,17 +74,55 @@ public class Map {
     }
 
     private void generateSafeZones() {
-        // Define corners as SafeZones (you can customize this)
+        // Define corners as SafeZones
         safeZones.put("Human", new Point(0, 0));
-        safeZones.put("Elf", new Point(width - 1, 0));
-        safeZones.put("Orc", new Point(0, height - 1));
-        safeZones.put("Goblin", new Point(width - 1, height - 1));
-    }
+        safeZones.put("Human1", new Point(1, 0));
+        safeZones.put("Human2", new Point(2, 0));
+        safeZones.put("Human3", new Point(0, 1));
+        safeZones.put("Human4", new Point(1, 1));
+        safeZones.put("Human5", new Point(2, 1));
+        safeZones.put("Human6", new Point(0, 2));
+        safeZones.put("Human7", new Point(1, 2));
+        safeZones.put("Human8", new Point(2, 2));
 
+        safeZones.put("Elf", new Point(width - 1, 0));
+        safeZones.put("Elf1", new Point(width - 2, 0));
+        safeZones.put("Elf2", new Point(width - 3, 0));
+        safeZones.put("Elf3", new Point(width - 1, 1));
+        safeZones.put("Elf4", new Point(width - 2, 1));
+        safeZones.put("Elf5", new Point(width - 3, 1));
+        safeZones.put("Elf6", new Point(width - 1, 2));
+        safeZones.put("Elf7", new Point(width - 2, 2));
+        safeZones.put("Elf8", new Point(width - 3, 2));
+
+
+        safeZones.put("Orc", new Point(0, height - 1));
+        safeZones.put("Orc1", new Point(1, height - 1));
+        safeZones.put("Orc2", new Point(2, height - 1));
+        safeZones.put("Orc3", new Point(0, height - 2));
+        safeZones.put("Orc4", new Point(1, height - 2));
+        safeZones.put("Orc5", new Point(2, height - 2));
+        safeZones.put("Orc6", new Point(0, height - 3));
+        safeZones.put("Orc7", new Point(1, height - 3));
+        safeZones.put("Orc8", new Point(2, height - 3));
+
+
+        safeZones.put("Goblin", new Point(width - 1, height - 1));
+        safeZones.put("Goblin1", new Point(width - 2, height - 1));
+        safeZones.put("Goblin2", new Point(width - 3, height - 1));
+        safeZones.put("Goblin3", new Point(width - 1, height - 2));
+        safeZones.put("Goblin4", new Point(width - 2, height - 2));
+        safeZones.put("Goblin5", new Point(width - 3, height - 2));
+        safeZones.put("Goblin6", new Point(width - 1, height - 3));
+        safeZones.put("Goblin7", new Point(width - 2, height - 3));
+        safeZones.put("Goblin8", new Point(width - 3, height - 3));
+
+        System.out.println("safeZones" + safeZones);
+    }
 
     public void generateObstacles() {
         System.out.println("Generating Obstacles"); // debugging
-        int numObstacles = (int) (width * height * 0.05); // 5% of the map are obstacles (adjust as needed)
+        int numObstacles = (int) (width * height * 0.04); // 4% of the map are obstacles (adjust as needed)
 
         // debugging
         System.out.println("numObstacles=" + numObstacles);
@@ -86,7 +131,6 @@ public class Map {
             int x = random.nextInt(width);
             int y = random.nextInt(height);
             Point location = new Point(x, y);
-            System.out.println("Obstacle Point " + location.x + ", " + location.y);
             // Ensure obstacles don't overlap SafeZones or other obstacles.
             if (!safeZones.containsValue(location) && !obstacles.contains(location) && grid[y][x] == null) {
 //                obstacles.add(location);
@@ -114,7 +158,7 @@ public class Map {
     }
 
     public Agent getAgentAt(Point location) {
-        System.out.println("getAgentAt(" + location + " (" + location.x + ", " + location.y + ") " + grid[location.y][location.x]);
+        System.out.println("getAgentAt (" + location.x + ", " + location.y + "): " + grid[location.y][location.x]);
         if (isWithinBounds(location)) {
             return grid[location.y][location.x];
         }
