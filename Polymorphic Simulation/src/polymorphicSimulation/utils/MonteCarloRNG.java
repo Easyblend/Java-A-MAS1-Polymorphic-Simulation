@@ -108,6 +108,16 @@ public class MonteCarloRNG {
       }
 
       /**
+       * Generates a random integer within a specified range [0, max]
+       * 
+       * @param max     The maximum value of the range (inclusive)
+       * @return a random number within the specified range.
+       */
+      public int nextInt(int max) {
+        return (int) (nextRandom() * (max + 1));
+      }
+
+      /**
        * Returns the number of iterations performed by the generator.
        * 
        * @return the number of iterations performed.
