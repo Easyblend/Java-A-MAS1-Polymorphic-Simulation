@@ -124,16 +124,13 @@ public class Map {
         System.out.println("Generating Obstacles"); // debugging
         int numObstacles = (int) (width * height * 0.04); // 4% of the map are obstacles (adjust as needed)
 
-        // debugging
-        System.out.println("numObstacles=" + numObstacles);
-
         for (int i = 0; i < numObstacles; i++) {
             int x = random.nextInt(width);
             int y = random.nextInt(height);
             Point location = new Point(x, y);
             // Ensure obstacles don't overlap SafeZones or other obstacles.
             if (!safeZones.containsValue(location) && !obstacles.contains(location) && grid[y][x] == null) {
-//                obstacles.add(location);
+                System.out.println("addObstacle(location): (" + location.x + ", " + location.y + ")");
                 addObstacle(location);
             } else { //Try again if an obstacle is on a forbidden place
                 i--;

@@ -13,7 +13,7 @@ public class Main {
     private static final int MAP_HEIGHT = 8;
     private static final int MAX_AGENTS = 4; //per group
     private static final int INITIAL_EP = 100;
-    private static final int MAX_SIMULATION_STEPS = 1000;
+    private static final int MAX_SIMULATION_STEPS = 100;
 
 
     public static void main(String[] args) {
@@ -25,12 +25,8 @@ public class Main {
         // 2. Master Agent Creation and Placement
         System.out.println(Yellow+"Master Agent Creation and Placement Initiated"+Reset);
         placeMasters(map);
+        map.printMap();
         System.out.println(Green+"Master Agent Creation and Placement Done"+Reset);
-
-        // 2.1. Generate Obstacles
-        System.out.println(Yellow+"Generate Obstacles Initiated"+Reset);
-        map.generateObstacles();
-        System.out.println(Green+"Generate Obstacles Done"+Reset);
 
         // 3. Agent Creation and Placement
         System.out.println(Yellow+"Agent Creation and Placement Initiated"+Reset);
@@ -44,9 +40,7 @@ public class Main {
 
         // 5. Determine Winner
         if (!winnerFound) { // Call only if no winner during simulation
-            System.out.println(Yellow+"Determine Winner Initiated"+Reset);
             determineWinner(map);
-            System.out.println(Green+"Determine Winner Done"+Reset);
         }
     }
 
@@ -58,7 +52,7 @@ public class Main {
         for (String group : groups) {
             for (int i = 0; i < MAX_AGENTS; i++) {
                 String groupName = group; //The group name of the agent
-                if (i < 4) { //The number of initial safeZones
+                if (i < 9) { //The number of initial safeZones
                     groupName = groupName + i; //Modify group name so that the agents are placed correctly to the initially designated safeZones.
                 }
 
@@ -115,6 +109,8 @@ public class Main {
             // Print master messages at the start of each step
             printMasterMessages(map);
 
+            printAgentStatus(agents);
+
             Collections.shuffle(agents); // Randomize agent order
 
             for (Agent agent : agents) {
@@ -128,7 +124,7 @@ public class Main {
                 return true;
             }
             try {
-                Thread.sleep(500); // Delay as needed (in milliseconds)
+                Thread.sleep(0); // Delay as needed (in milliseconds)
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -145,6 +141,13 @@ public class Main {
         }
     }
 
+    private static void printAgentStatus(List<Agent> agents) {
+        for (Agent agent : agents) {
+            if (!(agent instanceof Master)) { // Exclude Masters (already printed)
+                System.out.println(agent.name + " (" + agent.group + ") at (" + agent.location.x + ", " + agent.location.y + ") EP: " + agent.getEp() + ". Messages: " + agent.getMessages());
+            }
+        }
+    }
 
     private static boolean checkWinCondition(Map map) {
         String[] groups = {"Human", "Elf", "Orc", "Goblin"};
@@ -154,7 +157,7 @@ public class Main {
             Master master = SingletonMasterFactory.getMasterInstance(group, map.getSafeZoneLocation(group), INITIAL_EP);
 
             if (master.getMessages().size() == totalMessages) {
-                System.out.println(Green+"Group " + group + " wins! (Master collected all messages)"+Reset);
+                System.out.println(Green+"Group " + group + " wins! (Master collected all messages - " + master.getMessages().size() + "/" + totalMessages + ")" +Reset);
                 printMasterMessages(map);
                 return true; // End the simulation
             }
@@ -183,7 +186,8 @@ public class Main {
         if (winningGroups.isEmpty()) {
             System.out.println("No winner. No Master collected any messages.");
         } else if (winningGroups.size() == 1) {
-            System.out.println("Group " + winningGroups.get(0) + " wins! (Collected most messages: " + maxMessages + ")");
+            int totalMessages = Agent.getTotalMessages();
+            System.out.println(Green+"Group " + winningGroups.getFirst() + " wins! (Collected most messages: " + maxMessages + "/" + totalMessages + ")"+Reset);
         } else {
             System.out.print("It's a tie! Winning groups: ");
             for (int i = 0; i < winningGroups.size(); i++) {
