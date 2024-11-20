@@ -173,14 +173,13 @@ public abstract class Agent {
     }
 
     public void transferMessagesToMaster(Map map) {
-        System.out.println("transferMessagesToMaster method initiated");
         if (this instanceof Master) return; // Masters don't transfer messages to themselves
 
-        System.out.println("transferMessagesToMaster 2");
+        System.out.print("transferMessagesToMaster method initiated");
 
         Master master = SingletonMasterFactory.getMasterInstance(group, map.getSafeZoneLocation(group), initialEp);
 
-        System.out.println("map.isInSafeZone(location, group) " + map.isInSafeZone(location, group)); // debugging
+        System.out.println(" ||| map.isInSafeZone: " + map.isInSafeZone(location, group)); // debugging
 
         if (map.isInSafeZone(location, group)) {
             System.out.println("transferMessagesToMaster entered if"); // debugging
@@ -198,13 +197,12 @@ public abstract class Agent {
     // TODO: now fix the obstacles interaction
     // TODO: check if transferMessagesToMaster is working correctly in all the safe zones
     protected Point moveInDirection(Map map, Direction direction, int maxDistance) {
-        System.out.println(this.name + " moveInDirection method initiated");
         Point currentLocation = new Point(location.x, location.y);
         Point newLocation = null;
         for (int i = 0; i < maxDistance; i++) {
             newLocation = calculateNextLocation(currentLocation, direction); // Calculate the next potential location - 1 step
 
-            System.out.println("Potential next step: (" + newLocation.x + ", " + newLocation.y + ")"); // debugging
+            System.out.print("Potential next step: (" + newLocation.x + ", " + newLocation.y + ") ||| "); // debugging
 
             if (withinBounds(newLocation, map)) {
                 Agent otherAgent = map.getAgentAt(newLocation); // Check for other agents at the target location BEFORE moving
@@ -253,15 +251,19 @@ public abstract class Agent {
     // TODO: fix this method
     protected void updateEp(Map map, Point newLocation) {
         if (!map.isInSafeZone(newLocation, group)) {
-            System.out.println("EP before setEp: " + getEp());
-            System.out.println("manhattanDistance " + manhattanDistance(location, newLocation));
+            System.out.print("EP before setEp: " + getEp());
+            System.out.print(" ||| manhattanDistance " + manhattanDistance(location, newLocation));
             setEp(Math.max(0, getEp() - manhattanDistance(location, newLocation))); // Ensure ep doesn't go below 0
-            System.out.println("EP after set Ep: " + getEp());
+            System.out.println(" ||| EP after set Ep: " + getEp());
         } else {
             System.out.print("EP fully restored from "  + Red + getEp() + Reset);
             setEp(getInitialEp());
             System.out.println(" to " + Green + getEp() + Reset + " Safe Zone");
         }
+    }
+
+    public String getName() {
+        return name;
     }
 
     public int getEp() {
