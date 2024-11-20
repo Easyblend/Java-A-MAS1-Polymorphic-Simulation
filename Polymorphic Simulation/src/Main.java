@@ -157,7 +157,7 @@ public class Main {
             Master master = SingletonMasterFactory.getMasterInstance(group, map.getSafeZoneLocation(group), INITIAL_EP);
 
             if (master.getMessages().size() == totalMessages) {
-                System.out.println(Green+"Group " + group + " wins! (Master collected all messages - " + master.getMessages().size() + "/" + totalMessages + ")" +Reset);
+                System.out.println(Green+"Group " + group + " wins! (Master collected " +BackgroundBlue+Black+ "all messages - " + master.getMessages().size() + "/" + totalMessages + ")" +Reset);
                 printMasterMessages(map);
                 return true; // End the simulation
             }
@@ -189,14 +189,14 @@ public class Main {
             int totalMessages = Agent.getTotalMessages();
             System.out.println(Green+"Group " + winningGroups.getFirst() + " wins! (Collected most messages: " + maxMessages + "/" + totalMessages + ")"+Reset);
         } else {
-            System.out.print("It's a tie! Winning groups: ");
+            System.out.print(Green+"It's a tie! Winning groups: ");
             for (int i = 0; i < winningGroups.size(); i++) {
                 System.out.print(winningGroups.get(i));
                 if (i < winningGroups.size() - 1) {
                     System.out.print(", ");
                 }
             }
-            System.out.println(" (Collected " + maxMessages + " messages each)");
+            System.out.println(" (Collected " + maxMessages + " messages each)"+Reset);
         }
         printMasterMessages(map);
     }

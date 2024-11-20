@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
+import static polymorphicSimulation.style.ColorInConsole.*;
+
 public abstract class Agent {
 
     public String name;
@@ -214,6 +216,8 @@ public abstract class Agent {
                     break;
                 }
 
+                updateEp(map, newLocation); // Update the agent's EP.
+
                 currentLocation = newLocation; // Update currentLocation after checking for agents and exchangeMessages.
                 updateLocation(currentLocation, map); // Then update location on map
                 transferMessagesToMaster(map); //Transfer messages after each step. Since it has a check if the agent is in a SafeZone it will work even if it is called here
@@ -224,7 +228,7 @@ public abstract class Agent {
 
         }
 
-        updateEp(map, currentLocation); // Update the agent's EP.
+//        System.out.println("updateEp initiated from moveInDirection method, it uses the args: map : " + map + ", and currentLocation: " + currentLocation + " = ( " + currentLocation.x + ", " + currentLocation.y + ")");
 
         return Objects.requireNonNullElseGet(newLocation, () -> new Point(location.x, location.y));
     }
@@ -246,14 +250,19 @@ public abstract class Agent {
         return new Point(current.x + dx, current.y + dy);
     }
 
+    // TODO: fix this method
     protected void updateEp(Map map, Point newLocation) {
         if (!map.isInSafeZone(newLocation, group)) {
+            System.out.println("EP before setEp: " + getEp());
+            System.out.println("manhattanDistance " + manhattanDistance(location, newLocation));
             setEp(Math.max(0, getEp() - manhattanDistance(location, newLocation))); // Ensure ep doesn't go below 0
+            System.out.println("EP after set Ep: " + getEp());
         } else {
+            System.out.print("EP fully restored from "  + Red + getEp() + Reset);
             setEp(getInitialEp());
+            System.out.println(" to " + Green + getEp() + Reset + " Safe Zone");
         }
     }
-
 
     public int getEp() {
         return ep;
