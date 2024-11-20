@@ -140,7 +140,7 @@ public class Map {
 
     public void placeAgent(Agent agent) {
             grid[agent.location.y][agent.location.x] = agent;
-            System.out.println(agent.name + " placed at (" + agent.location.x + ", " + agent.location.y + ")");
+            System.out.println(agent.name + " placed at (" + agent.location.x + ", " + agent.location.y + ")"); // into - game
     }
 
     private Point findValidRandomSpot() {
@@ -155,7 +155,12 @@ public class Map {
     }
 
     public Agent getAgentAt(Point location) {
-        System.out.println("getAgentAt (" + location.x + ", " + location.y + "): " + grid[location.y][location.x]);
+        System.out.print("Agent at (" + location.x + ", " + location.y + "): ");
+        if(grid[location.y][location.x] != null) {
+            System.out.println(grid[location.y][location.x].getName());
+        } else {
+            System.out.println("none");
+        }
         if (isWithinBounds(location)) {
             return grid[location.y][location.x];
         }
@@ -179,7 +184,12 @@ public class Map {
 
 
                 if (grid[y][x] != null) {
-                    System.out.print(colorAgentSymbol(getAgentSymbol(grid[y][x])) + "  " + Reset);
+                    if (grid[y][x].getEp() == 0) {
+                        System.out.print(colorDeadAgentSymbol(getAgentSymbol(grid[y][x])) + "  " + Reset);
+
+                    } else {
+                        System.out.print(colorAgentSymbol(getAgentSymbol(grid[y][x])) + "  " + Reset);
+                    }
                     printed = true;
                 }
 
@@ -228,6 +238,16 @@ public class Map {
             case 'g' -> BrightYellow+inputChar;
             case 'G' -> BrightYellow+inputChar;
             default -> String.valueOf(inputChar);
+        };
+    }
+
+    private String colorDeadAgentSymbol(char inputChar) {
+        return switch (inputChar) {
+            case 'h' -> BrightBlue+'x';
+            case 'e' -> BrightMagenta+'x';
+            case 'o' -> BrightGreen+'x';
+            case 'g' -> BrightYellow+'x';
+            default -> String.valueOf('x');
         };
     }
 

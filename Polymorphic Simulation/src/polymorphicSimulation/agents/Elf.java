@@ -18,8 +18,11 @@ public class Elf extends Agent {
 
     @Override
     public void move(Map map) {
+        if (getEp() <= 0) {
+            System.out.println(BrightMagenta+name + " cannot move (EP = 0)"+Reset);
+            return;
+        }
         System.out.println(BrightMagenta+name + " starting move at (" + location.x + ", " + location.y + ")"+Reset);
-        if (getEp() <= 0) return;
 
         List<Direction> possibleDirections = List.of(Direction.NORTHEAST, Direction.NORTHWEST, Direction.SOUTHEAST, Direction.SOUTHWEST);
         Direction direction = possibleDirections.get(random.nextInt(possibleDirections.size()));

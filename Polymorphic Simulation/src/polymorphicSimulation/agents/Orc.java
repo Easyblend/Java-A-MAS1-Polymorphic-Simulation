@@ -18,8 +18,11 @@ public class Orc extends Agent {
 
     @Override
     public void move(Map map) {
+        if (getEp() <= 0) {
+            System.out.println(BrightGreen+name + " cannot move (EP = 0)"+Reset);
+            return;
+        }
         System.out.println(BrightGreen+name + " starting move at (" + location.x + ", " + location.y + ")"+Reset);
-        if (getEp() <= 0) return;
 
         List<Direction> possibleDirections = List.of(Direction.values());
         Direction direction = possibleDirections.get(random.nextInt(possibleDirections.size()));
