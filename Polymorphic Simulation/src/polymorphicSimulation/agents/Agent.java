@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
+import static polymorphicSimulation.style.ColorInConsole.*;
+
 public abstract class Agent {
 
     public String name;
@@ -48,6 +50,7 @@ public abstract class Agent {
 
     public void exchangeMessages(Agent other, Map map) {
         System.out.println("exchangeMessages method initiated"); // Debug print
+        System.out.println("this.group.equals(other.group: " + this.group + " - " + other.group);
         if (this.group.equals(other.group)) { // Allies
             other.messages.stream()
                     .filter(msg -> !this.messages.contains(msg))
@@ -58,7 +61,6 @@ public abstract class Agent {
             // Enemies (and not in SafeZone) - Battle
             System.out.println(this.name + " (" + this.group + ") battled " + other.name + "."); // Print before battle
             battle(other);
-            //After the battle
             System.out.println("Result of the battle: " + this.name + " has " + this.messages.size() + ", " + other.name + " has " + other.messages.size() + " messages" );
         }
     }
@@ -73,9 +75,11 @@ public abstract class Agent {
         int result = compareChoices(myChoice, otherChoice);
 
         if (result == 1) { // I win
-            transferMessages(other, this, random.nextInt(other.messages.size() + 1) ); // Transfer up to all messages
+//            transferMessages(other, this, random.nextInt(other.messages.size() + 1) ); // Transfer up to all messages
+            transferMessages(other, this);
         } else if (result == -1) { // I lose
-            transferMessages(this, other, random.nextInt(this.messages.size() + 1) ); // Transfer up to all messages
+//            transferMessages(this, other, random.nextInt(this.messages.size() + 1) ); // Transfer up to all messages
+            transferMessages(this, other);
         } // Tie: No message transfer
     }
 
@@ -91,24 +95,37 @@ public abstract class Agent {
         }
     }
 
-    private void transferMessages(Agent loser, Agent winner, int numMessages) {
-        System.out.println("TransferMessage method initiated. Agent Winner: " + winner + ", agent loser: " + loser + ", numMessages: " + numMessages);
-        if (numMessages <= 0) return;
+    private void transferMessages(Agent loser, Agent winner) { // Removed numMessages parameter
+        System.out.println("TransferMessage method initiated. Agent Winner: " + winner + ", agent loser: " + loser);
 
-        Random random = new Random();
-
-        // Add random message to winner.messages if the winner doesn't have it already
-        for (int i = 0; i < numMessages && !loser.messages.isEmpty(); i++) {
-            String message = loser.messages.remove(random.nextInt(loser.messages.size()));
-
+        // Iterate through a copy of the loser's messages to avoid ConcurrentModificationException
+        for (String message : new ArrayList<>(loser.messages)) { //Using a copy of loser.messages
             if (!winner.messages.contains(message)) {
                 winner.messages.add(message);
-            } else { //If the winner had the same message, try again (to ensure that the winner gets all the messages it's owed)
-                i--;
             }
-
         }
+        loser.messages.clear(); // Clear all messages from the loser after transfer
+
     }
+
+//    private void transferMessages(Agent loser, Agent winner, int numMessages) {
+//        System.out.println("TransferMessage method initiated. Agent Winner: " + winner + ", agent loser: " + loser + ", numMessages: " + numMessages);
+//        if (numMessages <= 0) return;
+//
+//        Random random = new Random();
+//
+//        // Add random message to winner.messages if the winner doesn't have it already
+//        for (int i = 0; i < numMessages && !loser.messages.isEmpty(); i++) {
+//            String message = loser.messages.remove(random.nextInt(loser.messages.size()));
+//
+//            if (!winner.messages.contains(message)) {
+//                winner.messages.add(message);
+//            } else { //If the winner had the same message, try again (to ensure that the winner gets all the messages it's owed)
+//                i--;
+//            }
+//
+//        }
+//    }
 
     public Direction getSafeZoneDirection(Map map) {
         Point safeZone = map.getSafeZoneLocation(this.group);
@@ -161,26 +178,25 @@ public abstract class Agent {
 
         System.out.println("transferMessagesToMaster 2");
 
-        Master master = SingletonMasterFactory.getMasterInstance(group, map.getSafeZoneLocation(group), initialEp); // Make sure initialEp is passed correctly
+        Master master = SingletonMasterFactory.getMasterInstance(group, map.getSafeZoneLocation(group), initialEp);
 
-
-        System.out.println("location: (" + location.x + ", " + location.y + "), group: " + group);
         System.out.println("map.isInSafeZone(location, group) " + map.isInSafeZone(location, group)); // debugging
-        System.out.println(map.getSafeZoneLocation(group));
 
         if (map.isInSafeZone(location, group)) {
             System.out.println("transferMessagesToMaster entered if"); // debugging
             for (String message : getMessages()) {
-                System.out.println("Master " + master.name + "receive Message method initiated");
+//                System.out.println("Master " + master.name + "receive Message method initiated"); // debugging
                 master.receiveMessage(message);
-                this.messages.remove(message); //Removing the message from the agent after transferring it
-                System.out.println(this.name + " transferred a message to Master " + master.name + "."); // Print transfer
-                break; // Transfer a single message per encounter
+//                this.messages.remove(message); // Option: Removing the message from the agent after transferring it to master, this will make it hard to collect all messages
+//                System.out.println(this.name + " transferred a message to Master " + master.name + "."); // debugging - Print transfer
+//                break; // Option: Transfer a single message per encounter
             }
+            System.out.println("Done transferring"); // debugging
         }
     }
 
     // TODO: now fix the obstacles interaction
+    // TODO: check if transferMessagesToMaster is working correctly in all the safe zones
     protected Point moveInDirection(Map map, Direction direction, int maxDistance) {
         System.out.println(this.name + " moveInDirection method initiated");
         Point currentLocation = new Point(location.x, location.y);
@@ -200,6 +216,8 @@ public abstract class Agent {
                     break;
                 }
 
+                updateEp(map, newLocation); // Update the agent's EP.
+
                 currentLocation = newLocation; // Update currentLocation after checking for agents and exchangeMessages.
                 updateLocation(currentLocation, map); // Then update location on map
                 transferMessagesToMaster(map); //Transfer messages after each step. Since it has a check if the agent is in a SafeZone it will work even if it is called here
@@ -210,7 +228,7 @@ public abstract class Agent {
 
         }
 
-        updateEp(map, currentLocation); // Update the agent's EP.
+//        System.out.println("updateEp initiated from moveInDirection method, it uses the args: map : " + map + ", and currentLocation: " + currentLocation + " = ( " + currentLocation.x + ", " + currentLocation.y + ")");
 
         return Objects.requireNonNullElseGet(newLocation, () -> new Point(location.x, location.y));
     }
@@ -232,14 +250,19 @@ public abstract class Agent {
         return new Point(current.x + dx, current.y + dy);
     }
 
+    // TODO: fix this method
     protected void updateEp(Map map, Point newLocation) {
         if (!map.isInSafeZone(newLocation, group)) {
+            System.out.println("EP before setEp: " + getEp());
+            System.out.println("manhattanDistance " + manhattanDistance(location, newLocation));
             setEp(Math.max(0, getEp() - manhattanDistance(location, newLocation))); // Ensure ep doesn't go below 0
+            System.out.println("EP after set Ep: " + getEp());
         } else {
+            System.out.print("EP fully restored from "  + Red + getEp() + Reset);
             setEp(getInitialEp());
+            System.out.println(" to " + Green + getEp() + Reset + " Safe Zone");
         }
     }
-
 
     public int getEp() {
         return ep;

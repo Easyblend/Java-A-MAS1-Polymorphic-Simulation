@@ -124,16 +124,13 @@ public class Map {
         System.out.println("Generating Obstacles"); // debugging
         int numObstacles = (int) (width * height * 0.04); // 4% of the map are obstacles (adjust as needed)
 
-        // debugging
-        System.out.println("numObstacles=" + numObstacles);
-
         for (int i = 0; i < numObstacles; i++) {
             int x = random.nextInt(width);
             int y = random.nextInt(height);
             Point location = new Point(x, y);
             // Ensure obstacles don't overlap SafeZones or other obstacles.
             if (!safeZones.containsValue(location) && !obstacles.contains(location) && grid[y][x] == null) {
-//                obstacles.add(location);
+                System.out.println("addObstacle(location): (" + location.x + ", " + location.y + ")");
                 addObstacle(location);
             } else { //Try again if an obstacle is on a forbidden place
                 i--;
@@ -186,22 +183,14 @@ public class Map {
                     printed = true;
                 }
 
-
                 // Iterate through the obstacles set
                 for (Point obstacleLocation : obstacles) {
-//                    System.out.println("currentPoint " + currentPoint.x + ", " + currentPoint.y);
-//                    System.out.println("obstacleLocation " + obstacleLocation.x + ", " + obstacleLocation.y);
-//                    System.out.println("obstacleLocation is: " + obstacleLocation + ", currentPoint is: " + currentPoint);
-//                    System.out.println("before if, obstacleLocation=" + obstacleLocation + ", currentPoint=" + currentPoint);
-//                    if (obstacleLocation.equals(currentPoint)) { // Check with .equals
-//                    if (obstacleLocation.x == currentPoint.x && obstacleLocation.y == currentPoint.y) { // Check with .equals
-                        if (obstacleLocation.equals(currentPoint)) {  // Use .equals() here
+                        if (obstacleLocation.equals(currentPoint)) {
                         System.out.print(Red + "#  " + Reset);
                         printed = true;
                         break; // Exit the inner loop after printing the obstacle
                     }
                 }
-
 
                 if (!printed) { //If nothing was printed at the currentPoint print the default character or check for safeZones.
                     boolean isSafeZone = false;
@@ -231,9 +220,13 @@ public class Map {
     private String colorAgentSymbol(char inputChar) {
         return switch (inputChar) {
             case 'h' -> BrightBlue+inputChar;
+            case 'H' -> BrightBlue+inputChar;
             case 'e' -> BrightMagenta+inputChar;
+            case 'E' -> BrightMagenta+inputChar;
             case 'o' -> BrightGreen+inputChar;
+            case 'O' -> BrightGreen+inputChar;
             case 'g' -> BrightYellow+inputChar;
+            case 'G' -> BrightYellow+inputChar;
             default -> String.valueOf(inputChar);
         };
     }
