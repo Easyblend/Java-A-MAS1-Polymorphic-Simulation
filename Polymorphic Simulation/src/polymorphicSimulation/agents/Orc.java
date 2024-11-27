@@ -22,7 +22,7 @@ public class Orc extends Agent {
             System.out.println(BrightGreen+name + " cannot move (EP = 0)"+Reset);
             return;
         }
-        System.out.println(BrightGreen+name + " starting move at (" + location.x + ", " + location.y + ")"+Reset);
+        System.out.println(BrightGreen+name + " starting move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset);
 
         List<Direction> possibleDirections = List.of(Direction.values());
         Direction direction = possibleDirections.get(random.nextInt(possibleDirections.size()));

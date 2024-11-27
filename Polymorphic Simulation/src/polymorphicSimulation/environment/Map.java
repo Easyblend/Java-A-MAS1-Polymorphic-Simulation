@@ -16,6 +16,7 @@ public class Map {
     private final int height;
     private final Agent[][] grid; // Now a 2D array to store agents
     private final Set<Point> obstacles;
+    private final Set<Point> deadAgents;
     private final java.util.Map<String, Point> safeZones; // Use the full name of Map since we created another Map class
     private final Random random = new Random();
 
@@ -24,21 +25,37 @@ public class Map {
         this.height = height;
         this.grid = new Agent[height][width]; // Initialize grid
         this.obstacles = new HashSet<>();
+        this.deadAgents = new HashSet<>();
         this.safeZones = new HashMap<>();
         generateSafeZones(3, 2); // Generate SafeZones upon map creation
         generateObstacles(); // Generate obstacles upon map creation
     }
 
     public boolean isTileFree(Point location) {
-        if (!isWithinBounds(location)) { // Check bounds first
+        if (!isTileWithinBounds(location)) { // Check bounds first
             return false;
         }
-        // Only return true if within bounds and the location is empty (i.e. not obstacle and not agent)
-        return  !obstacles.contains(location) && grid[location.y][location.x] == null;
+        return !isObstacleAt(location) && !isAgentAt(location);
     }
 
-    public boolean isWithinBounds(Point location) {
+    public boolean isTileWithinBounds(Point location) {
         return location.x >= 0 && location.x < width && location.y >= 0 && location.y < height;
+    }
+
+    public boolean isObstacleAt(Point location) {
+        return obstacles.contains(location);
+    }
+
+    public boolean isAgentAt(Point location) {
+        return grid[location.y][location.x] != null;
+    }
+
+    public boolean isDeadAgentAt(Point location) {
+        return deadAgents.contains(location);
+    }
+
+    public void addDeadAgent(Point location) {
+        this.deadAgents.add(location);
     }
 
     public boolean isInSafeZone(Point location, String group) {
@@ -50,6 +67,7 @@ public class Map {
         return false;
     }
 
+    // TODO: Check more
     public Point getSafeZoneLocation(String group) {
         for (java.util.Map.Entry<String, Point> entry : safeZones.entrySet()) {
             if (entry.getKey().equals(group)) {
@@ -60,8 +78,10 @@ public class Map {
     }
 
     public void addObstacle(Point location) {
+        System.out.println("addObstacle method initiated. Adding obstacle at location: (" + location.x + ", " + location.y + ")");
         obstacles.add(location);
     }
+
 
     private void generateSafeZones(int sizeX, int sizeY) {
         defineSafeZone("Human", 0, 0, 1, 1, sizeX, sizeY);
@@ -126,14 +146,14 @@ public class Map {
         } else {
             System.out.println("none");
         }
-        if (isWithinBounds(location)) {
+        if (isTileWithinBounds(location)) {
             return grid[location.y][location.x];
         }
         return null;
     }
 
     public void removeAgent(Point location) {
-        if (isWithinBounds(location)) {
+        if (isTileWithinBounds(location)) {
             grid[location.y][location.x] = null;
         }
     }
@@ -156,16 +176,29 @@ public class Map {
                         System.out.print(colorAgentSymbol(getAgentSymbol(grid[y][x])) + "  " + Reset);
                     }
                     printed = true;
+
+                    // TODO: Enhance the color later
+                }  else if (deadAgents.contains(currentPoint)) {
+                    System.out.print(Cyan + "X  " + Reset); // Or a different symbol
+                    printed = true;
+                } else if (obstacles.contains(currentPoint)) { // Print "#" for regular obstacles
+                    System.out.print(Red + "#  " + Reset);
+                    printed = true;
+
                 }
 
-                // Iterate through the obstacles set
-                for (Point obstacleLocation : obstacles) {
-                        if (obstacleLocation.equals(currentPoint)) {
-                        System.out.print(Red + "#  " + Reset);
-                        printed = true;
-                        break; // Exit the inner loop after printing the obstacle
-                    }
-                }
+
+//                // Iterate through the obstacles set
+//                for (Point obstacleLocation : obstacles) {
+//                        if (obstacleLocation.equals(currentPoint)) {
+//                            if (obstacleLocation instanceof DeadAgent) {
+//                                System.out.println("LOL");
+//                            }
+//                        System.out.print(Red + "#  " + Reset);
+//                        printed = true;
+//                        break; // Exit the inner loop after printing the obstacle
+//                    }
+//                }
 
                 if (!printed) { //If nothing was printed at the currentPoint print the default character or check for safeZones.
                     boolean isSafeZone = false;
@@ -194,14 +227,10 @@ public class Map {
 
     private String colorAgentSymbol(char inputChar) {
         return switch (inputChar) {
-            case 'h' -> BrightBlue+inputChar;
-            case 'H' -> BrightBlue+inputChar;
-            case 'e' -> BrightMagenta+inputChar;
-            case 'E' -> BrightMagenta+inputChar;
-            case 'o' -> BrightGreen+inputChar;
-            case 'O' -> BrightGreen+inputChar;
-            case 'g' -> BrightYellow+inputChar;
-            case 'G' -> BrightYellow+inputChar;
+            case 'h', 'H' -> BrightBlue+inputChar;
+            case 'e', 'E' -> BrightMagenta+inputChar;
+            case 'o', 'O' -> BrightGreen+inputChar;
+            case 'g', 'G' -> BrightYellow+inputChar;
             default -> String.valueOf(inputChar);
         };
     }
