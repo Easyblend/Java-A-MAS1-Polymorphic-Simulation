@@ -1,5 +1,6 @@
 package polymorphicSimulation.agents;
 
+import polymorphicSimulation.environment.DeadAgent;
 import polymorphicSimulation.environment.Map;
 import polymorphicSimulation.environment.Point;
 import polymorphicSimulation.utils.Direction;
@@ -39,7 +40,11 @@ public abstract class Agent {
     public abstract void move(Map map); //Polymorphic method for agent movement
 
     protected boolean withinBounds(Point newLocation, Map map) {
-        return map.isWithinBounds(newLocation);
+        return map.isTileWithinBounds(newLocation);
+    }
+
+    protected boolean TIleObstacle(Point newLocation, Map map) {
+        return map.isObstacleAt(newLocation);
     }
 
     protected void updateLocation(Point newLocation, Map map) {
@@ -95,6 +100,8 @@ public abstract class Agent {
         }
     }
 
+
+    // TODO: take unique messages first, then if there are still left to take but no unique, just delete the remaining from the loser
     private void transferMessages(Agent loser, Agent winner) { // Removed numMessages parameter
         System.out.println("TransferMessage method initiated. Agent Winner: " + winner + ", agent loser: " + loser);
 
@@ -107,6 +114,8 @@ public abstract class Agent {
         loser.messages.clear(); // Clear all messages from the loser after transfer
 
     }
+
+//    private void transferMessagesAlly(Agent )
 
 //    private void transferMessages(Agent loser, Agent winner, int numMessages) {
 //        System.out.println("TransferMessage method initiated. Agent Winner: " + winner + ", agent loser: " + loser + ", numMessages: " + numMessages);
@@ -196,38 +205,83 @@ public abstract class Agent {
 
     // TODO: now fix the obstacles interaction
     // TODO: check if transferMessagesToMaster is working correctly in all the safe zones
+//    protected Point moveInDirection(Map map, Direction direction, int maxDistance) {
+//        Point currentLocation = new Point(location.x, location.y);
+//        Point newLocation = null;
+//        for (int i = 0; i < maxDistance; i++) {
+//            newLocation = calculateNextLocation(currentLocation, direction); // Calculate the next potential location - 1 step
+//
+//            System.out.print("Potential next step: (" + newLocation.x + ", " + newLocation.y + ") ||| "); // debugging
+//
+//            if (withinBounds(newLocation, map)) {
+//                Agent otherAgent = map.getAgentAt(newLocation); // Check for other agents at the target location BEFORE moving
+//                if (otherAgent != null && otherAgent != this) { // TODO: fix when the otherAgent is a Master or safe-zone
+//                    exchangeMessages(otherAgent, map);
+//                    break; // Stop further movement for this step after interaction.
+//                } else if (map.getObstacles().contains(newLocation)) { // check if there is obstacle in the next potential location
+//                    System.out.println("Obstacle encountered at (" + newLocation.x + ", " + newLocation.y + ")");
+//                    break;
+//                }
+//
+//                updateEp(map, newLocation); // Update the agent's EP.
+//
+//                currentLocation = newLocation; // Update currentLocation after checking for agents and exchangeMessages.
+//                updateLocation(currentLocation, map); // Then update location on map
+//                transferMessagesToMaster(map); //Transfer messages after each step. Since it has a check if the agent is in a SafeZone it will work even if it is called here
+//            } else {
+//                System.out.println("Cannot Move Outside");
+//                break; // Stop if blocked (outside map)
+//            }
+//
+//        }
+//
+//        return Objects.requireNonNullElseGet(newLocation, () -> new Point(location.x, location.y));
+//    }
+
     protected Point moveInDirection(Map map, Direction direction, int maxDistance) {
+        System.out.println(this.name + " moveInDirection method initiated");
         Point currentLocation = new Point(location.x, location.y);
         Point newLocation = null;
         for (int i = 0; i < maxDistance; i++) {
-            newLocation = calculateNextLocation(currentLocation, direction); // Calculate the next potential location - 1 step
-
-            System.out.print("Potential next step: (" + newLocation.x + ", " + newLocation.y + ") ||| "); // debugging
+            newLocation = calculateNextLocation(currentLocation, direction);
 
             if (withinBounds(newLocation, map)) {
-                Agent otherAgent = map.getAgentAt(newLocation); // Check for other agents at the target location BEFORE moving
-                if (otherAgent != null && otherAgent != this) { // TODO: fix when the otherAgent is a Master or safe-zone
-                    exchangeMessages(otherAgent, map);
-                    break; // Stop further movement for this step after interaction.
-                } else if (map.getObstacles().contains(newLocation)) { // check if there is obstacle in the next potential location
-                    System.out.println("Obstacle encountered at (" + newLocation.x + ", " + newLocation.y + ")");
-                    break;
+
+                if (!TIleObstacle(newLocation, map)) {
+                    Agent otherAgent = map.getAgentAt(newLocation);  // Check if another agent is present at the target location
+
+                    if (otherAgent != null && otherAgent != this) {
+                        if (otherAgent instanceof Master) { //Check if other agent is Master before interaction. If so, only transfer messages
+                            transferMessagesToMaster(map);
+                        } else {
+                            exchangeMessages(otherAgent, map);
+                        }
+                        break; // Stop further movement after interaction
+                    }
+
+                    currentLocation = newLocation; //The agent moves to the new location
+                    int epCost = map.isInSafeZone(currentLocation, group) ? 0 : 1; //No ep reduction in SafeZone
+                    setEp(Math.max(0, getEp() - epCost)); //Reduce ep after the movement
+                    updateLocation(currentLocation, map);
+                    if (getEp() <= 0 && !(this instanceof Master)) { //Check if agent is dead after movement
+                        System.out.println(getName() + " becomeObstacle()");
+                        becomeObstacle(map);
+                        break; //Agent is dead, stop moving.
+                    }
+
+                    transferMessagesToMaster(map);
+
+                } else { // If can't move due to obstacle or out of bounds
+                    System.out.println("No Move - Hit Obstacle"); //Combined message to show that the agent cannot move either due to obstacle or out of bounds
+                    break; //Stop if blocked
                 }
 
-                updateEp(map, newLocation); // Update the agent's EP.
-
-                currentLocation = newLocation; // Update currentLocation after checking for agents and exchangeMessages.
-                updateLocation(currentLocation, map); // Then update location on map
-                transferMessagesToMaster(map); //Transfer messages after each step. Since it has a check if the agent is in a SafeZone it will work even if it is called here
             } else {
-                System.out.println("Cannot Move Outside");
-                break; // Stop if blocked (outside map)
+                System.out.println("No Move - Outside Bounds");
+                break;
             }
 
         }
-
-//        System.out.println("updateEp initiated from moveInDirection method, it uses the args: map : " + map + ", and currentLocation: " + currentLocation + " = ( " + currentLocation.x + ", " + currentLocation.y + ")");
-
         return Objects.requireNonNullElseGet(newLocation, () -> new Point(location.x, location.y));
     }
 
@@ -255,12 +309,31 @@ public abstract class Agent {
             System.out.print(" ||| manhattanDistance " + manhattanDistance(location, newLocation));
             setEp(Math.max(0, getEp() - manhattanDistance(location, newLocation))); // Ensure ep doesn't go below 0
             System.out.println(" ||| EP after set Ep: " + getEp());
+
+            if (this.ep <= 0){
+                becomeObstacle(map);
+            }
+
         } else {
             System.out.print("EP fully restored from "  + Red + getEp() + Reset);
             setEp(getInitialEp());
             System.out.println(" to " + Green + getEp() + Reset + " Safe Zone");
         }
     }
+
+//    private void becomeObstacle(Map map) {
+//        System.out.println("becomeObstacle method initiated");
+//        map.addObstacle(new DeadAgent(this).location);
+//        map.removeAgent(this.location);
+//    }
+
+    private void becomeObstacle(Map map) {
+        map.addDeadAgent(this.location); //Add to deadAgents Set.
+        map.addObstacle(this.location); //Add to obstacles Set.
+        map.removeAgent(this.location); //Remove the dead agent from the map
+
+    }
+
 
     public String getName() {
         return name;

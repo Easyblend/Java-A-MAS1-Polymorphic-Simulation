@@ -11,7 +11,7 @@ public class Main {
 
     private static final int MAP_WIDTH = 14;
     private static final int MAP_HEIGHT = 8;
-    private static final int MAX_AGENTS = 4; //per group
+    private static final int MAX_AGENTS = 1; //per group
     private static final int INITIAL_EP = 100;
     private static final int MAX_SIMULATION_STEPS = 100;
 

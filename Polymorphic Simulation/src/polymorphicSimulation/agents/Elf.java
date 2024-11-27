@@ -22,7 +22,7 @@ public class Elf extends Agent {
             System.out.println(BrightMagenta+name + " cannot move (EP = 0)"+Reset);
             return;
         }
-        System.out.println(BrightMagenta+name + " starting move at (" + location.x + ", " + location.y + ")"+Reset);
+        System.out.println(BrightMagenta+name + " starting move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset);
 
         List<Direction> possibleDirections = List.of(Direction.NORTHEAST, Direction.NORTHWEST, Direction.SOUTHEAST, Direction.SOUTHWEST);
         Direction direction = possibleDirections.get(random.nextInt(possibleDirections.size()));

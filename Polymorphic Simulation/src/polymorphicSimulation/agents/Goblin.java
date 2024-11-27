@@ -21,7 +21,7 @@ public class Goblin extends Agent {
             System.out.println(BrightYellow+name + " cannot move (EP = 0)"+Reset);
             return;
         }
-        System.out.println(BrightYellow+name + " starting move at (" + location.x + ", " + location.y + ")"+Reset); // debugging
+        System.out.println(BrightYellow+name + " starting move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset); // debugging
 
         // Random movement (any direction, 1-3 tiles)
         Direction direction = Direction.values()[random.nextInt(Direction.values().length)]; // Any direction
