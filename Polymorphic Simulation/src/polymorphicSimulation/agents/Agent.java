@@ -1,6 +1,5 @@
 package polymorphicSimulation.agents;
 
-import polymorphicSimulation.environment.DeadAgent;
 import polymorphicSimulation.environment.Map;
 import polymorphicSimulation.environment.Point;
 import polymorphicSimulation.utils.Direction;
@@ -328,12 +327,10 @@ public abstract class Agent {
 //    }
 
     private void becomeObstacle(Map map) {
-        map.addDeadAgent(this.location); //Add to deadAgents Set.
+        map.addDeadAgent(this.location, this.group); //Add to deadAgents Set.
         map.addObstacle(this.location); //Add to obstacles Set.
         map.removeAgent(this.location); //Remove the dead agent from the map
-
     }
-
 
     public String getName() {
         return name;
@@ -341,6 +338,10 @@ public abstract class Agent {
 
     public int getEp() {
         return ep;
+    }
+
+    public String getGroup() {
+        return group;
     }
 
     public void setEp(int ep) { this.ep = ep; }
