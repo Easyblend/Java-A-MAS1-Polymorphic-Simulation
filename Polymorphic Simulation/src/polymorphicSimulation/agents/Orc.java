@@ -19,7 +19,7 @@ public class Orc extends Agent {
     @Override
     public void move(Map map) {
         if (getEp() <= 0) {
-            System.out.println(BrightGreen+name + " cannot move (EP = 0)"+Reset);
+            System.out.println(BrightGreen+name + " is Dead"+Reset);
             return;
         }
         System.out.println(BrightGreen+name + " starting move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset);
@@ -32,6 +32,6 @@ public class Orc extends Agent {
         moveInDirection(map, direction, 1); // Max distance is always 1 for King
 
         lastDirection = direction;
-        System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ")"+Reset);
+        System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset);
     }
 }

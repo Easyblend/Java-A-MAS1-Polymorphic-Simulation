@@ -22,6 +22,9 @@ public class Main {
         Map map = new Map(MAP_WIDTH, MAP_HEIGHT);
         System.out.println(Green+"Map Setup Done"+Reset);
 
+        // 1.1 checking zones
+//        System.out.println(map.getSafeZoneLocation());
+
         // 2. Master Agent Creation and Placement
         System.out.println(Yellow+"Master Agent Creation and Placement Initiated"+Reset);
         placeMasters(map);
@@ -60,9 +63,7 @@ public class Main {
                     groupName = groupName + i; //Modify group name so that the agents are placed correctly to the initially designated safeZones.
                 }
 
-
                 Point location = findValidRandomSpot(map); //Helper method to find open spots
-
 
                 Agent agent = switch (group) {
                     case "Human" -> new Human("Human" + i, group, location, INITIAL_EP);

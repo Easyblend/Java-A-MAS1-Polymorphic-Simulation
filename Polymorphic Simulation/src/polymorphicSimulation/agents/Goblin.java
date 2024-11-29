@@ -18,7 +18,7 @@ public class Goblin extends Agent {
     @Override
     public void move(Map map) {
         if (getEp() <= 0) {
-            System.out.println(BrightYellow+name + " cannot move (EP = 0)"+Reset);
+            System.out.println(BrightYellow+name + " is Dead"+Reset);
             return;
         }
         System.out.println(BrightYellow+name + " starting move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset); // debugging
@@ -32,6 +32,6 @@ public class Goblin extends Agent {
         moveInDirection(map, direction, maxDistance);
 
         lastDirection = direction;
-        System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ")"+Reset); // debugging
+        System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset); // debugging
     }
 }

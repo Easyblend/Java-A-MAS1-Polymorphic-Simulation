@@ -49,10 +49,11 @@ public abstract class Agent {
     protected boolean TileDeadAgent(Point newLocation, Map map) {
         return map.isDeadAgentAt(newLocation);
     }
+
     protected void updateLocation(Point newLocation, Map map) {
-            map.removeAgent(this.location); // Remove from old spot
-            location = newLocation;
-            map.placeAgent(this); // Add to new Spot
+        map.removeAgent(this.location); // Remove from old spot
+        location = newLocation;
+        map.placeAgent(this); // Add to new Spot
     }
 
     public void exchangeMessages(Agent other, Map map) {
@@ -68,7 +69,7 @@ public abstract class Agent {
             // Enemies (and not in SafeZone) - Battle
             System.out.println(this.name + " (" + this.group + ") battled " + other.name + "."); // Print before battle
             battle(other);
-            System.out.println("Result of the battle: " + this.name + " has " + this.messages.size() + ", " + other.name + " has " + other.messages.size() + " messages" );
+            System.out.println("Result of the battle: " + this.name + " has " + this.messages.size() + ", " + other.name + " has " + other.messages.size() + " messages");
         }
     }
 
@@ -157,7 +158,7 @@ public abstract class Agent {
             } else {
                 return Direction.WEST;
             }
-        } else if (Math.abs(dy) > Math.abs(dx)){ //Prioritize vertical movement if dy is greater than dx
+        } else if (Math.abs(dy) > Math.abs(dx)) { //Prioritize vertical movement if dy is greater than dx
             if (dy > 0) {
                 return Direction.NORTH;
             } else {
@@ -249,13 +250,9 @@ public abstract class Agent {
             newLocation = calculateNextLocation(currentLocation, direction);
 
             if (withinBounds(newLocation, map)) {
-
                 if (!TileObstacle(newLocation, map)) {
-                    System.out.println("!TileObstacle(newLocation, map): " + !TileObstacle(newLocation, map));
-                    if(!TileDeadAgent(newLocation, map)){
-                        System.out.println("!TileDeadAgent(newLocation, map): " + !TileDeadAgent(newLocation, map));
+                    if (!map.isInOtherSafeZone(newLocation, group)) {
                         Agent otherAgent = map.getAgentAt(newLocation);  // Check if another agent is present at the target location
-
                         if (otherAgent != null && otherAgent != this) {
                             if (otherAgent instanceof Master) { //Check if other agent is Master before interaction. If so, only transfer messages
                                 transferMessagesToMaster(map);
@@ -275,22 +272,23 @@ public abstract class Agent {
                             return; //Agent is dead, stop moving.
                         }
                         transferMessagesToMaster(map);
+
+                    } else {
+                        System.out.println("No Move - Hit Other's SafeZone");
+                        barrierHit(map, direction, stepsLeft);
+                        break; //Stop if blocked
                     }
                 } else { // If can't move due to obstacle
-//                    if (get)
                     System.out.println("No Move - Hit Obstacle");
                     barrierHit(map, direction, stepsLeft);
-
                     break; //Stop if blocked
                 }
-
             } else {
                 System.out.println("No Move - Outside Bounds");
                 break;
             }
 
         }
-//        Objects.requireNonNullElseGet(newLocation, () -> new Point(location.x, location.y));
     }
 
     private Point calculateNextLocation(Point current, Direction direction) {
@@ -301,12 +299,11 @@ public abstract class Agent {
             case SOUTH: dy = -1; break;
             case EAST: dx = 1; break;
             case WEST: dx = -1; break;
-            case NORTHEAST: dx = 1; dy = 1; break; // Correct diagonal calculations
+            case NORTHEAST: dx = 1; dy = 1; break;
             case NORTHWEST: dx = -1; dy = 1; break;
             case SOUTHEAST: dx = 1; dy = -1; break;
             case SOUTHWEST: dx = -1; dy = -1; break;
         }
-
         return new Point(current.x + dx, current.y + dy);
     }
 
@@ -319,7 +316,7 @@ public abstract class Agent {
             System.out.println(" ||| EP after set Ep: " + getEp());
 
         } else {
-            System.out.print("EP fully restored from "  + Red + getEp() + Reset);
+            System.out.print("EP fully restored from " + Red + getEp() + Reset);
             setEp(getInitialEp());
             System.out.println(" to " + Green + getEp() + Reset + " Safe Zone");
         }
@@ -328,7 +325,7 @@ public abstract class Agent {
     protected void barrierHit(Map map, Direction direction, int stepsLeft) {
         int epLost = switch (direction) {
             case NORTH, SOUTH, EAST, WEST -> stepsLeft;
-            case NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST -> 2*stepsLeft;
+            case NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST -> 2 * stepsLeft;
         };
         System.out.print("EP before hitting barrier = " + getEp());
         setEp(Math.max(0, getEp() - epLost));
@@ -354,7 +351,9 @@ public abstract class Agent {
         return group;
     }
 
-    public void setEp(int ep) { this.ep = ep; }
+    public void setEp(int ep) {
+        this.ep = ep;
+    }
 
     public int getInitialEp() {
         return initialEp;
