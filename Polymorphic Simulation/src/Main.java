@@ -12,7 +12,7 @@ public class Main {
     private static final int MAP_WIDTH = 14;
     private static final int MAP_HEIGHT = 8;
     private static final int MAX_AGENTS = 4; //per group
-    private static final int INITIAL_EP = 100;
+    private static final int INITIAL_EP = 200;
     private static final int MAX_SIMULATION_STEPS = 100;
 
 
@@ -42,6 +42,10 @@ public class Main {
         if (!winnerFound) { // Call only if no winner during simulation
             determineWinner(map);
         }
+
+        // 6. Display Final Info
+        printFinalResults(agents);
+
     }
 
     private static List<Agent> createAgents(Map map) {
@@ -144,7 +148,16 @@ public class Main {
     private static void printAgentStatus(List<Agent> agents) {
         for (Agent agent : agents) {
             if (!(agent instanceof Master)) { // Exclude Masters (already printed)
-                System.out.println(agent.name + " (" + agent.group + ") at (" + agent.location.x + ", " + agent.location.y + ") EP: " + agent.getEp() + ". Messages: " + agent.getMessages());
+                System.out.println(agent.name + " (" + agent.group + ") at (" + agent.location.x + ", "
+                        + agent.location.y + ") EP: " + agent.getEp() + ". Messages: " + agent.getMessages());
+            }
+        }
+    }
+
+    private static void printFinalResults(List<Agent> agents){
+        for (Agent agent : agents) {
+            if(!(agent instanceof Master)) {
+                System.out.println(agent.name + " has " + agent.getMessages().size() + " messages.");
             }
         }
     }

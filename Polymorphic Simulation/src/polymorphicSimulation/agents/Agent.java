@@ -245,6 +245,7 @@ public abstract class Agent {
         Point currentLocation = new Point(location.x, location.y);
         Point newLocation = null;
         for (int i = 0; i < maxDistance; i++) {
+            int stepsLeft = maxDistance - i;
             newLocation = calculateNextLocation(currentLocation, direction);
 
             if (withinBounds(newLocation, map)) {
@@ -278,6 +279,8 @@ public abstract class Agent {
                 } else { // If can't move due to obstacle
 //                    if (get)
                     System.out.println("No Move - Hit Obstacle");
+                    barrierHit(map, direction, stepsLeft);
+
                     break; //Stop if blocked
                 }
 
@@ -315,15 +318,22 @@ public abstract class Agent {
             setEp(Math.max(0, getEp() - manhattanDistance(location, newLocation))); // Ensure ep doesn't go below 0
             System.out.println(" ||| EP after set Ep: " + getEp());
 
-//            if (this.ep <= 0){
-//                becomeObstacle(map);
-//            }
-
         } else {
             System.out.print("EP fully restored from "  + Red + getEp() + Reset);
             setEp(getInitialEp());
             System.out.println(" to " + Green + getEp() + Reset + " Safe Zone");
         }
+    }
+
+    protected void barrierHit(Map map, Direction direction, int stepsLeft) {
+        int epLost = switch (direction) {
+            case NORTH, SOUTH, EAST, WEST -> stepsLeft;
+            case NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST -> 2*stepsLeft;
+        };
+        System.out.print("EP before hitting barrier = " + getEp());
+        setEp(Math.max(0, getEp() - epLost));
+        System.out.println(" --> Lost " + epLost + " --> current EP = " + getEp());
+
     }
 
     private void becomeObstacle(Map map) {
