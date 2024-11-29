@@ -19,7 +19,7 @@ public class Elf extends Agent {
     @Override
     public void move(Map map) {
         if (getEp() <= 0) {
-            System.out.println(BrightMagenta+name + " cannot move (EP = 0)"+Reset);
+            System.out.println(BrightMagenta+name + " is Dead"+Reset);
             return;
         }
         System.out.println(BrightMagenta+name + " starting move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset);
@@ -34,7 +34,7 @@ public class Elf extends Agent {
         moveInDirection(map, direction, maxDistance);
 
         lastDirection = direction;
-        System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ")"+Reset);
+        System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset);
 
     }
 

@@ -3,10 +3,7 @@ package polymorphicSimulation.environment;
 import polymorphicSimulation.agents.Agent;
 import polymorphicSimulation.agents.Master;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import static polymorphicSimulation.style.ColorInConsole.*;
 
@@ -71,6 +68,16 @@ public class Map {
         return false;
     }
 
+    public boolean isInOtherSafeZone(Point location, String group) {
+        for (java.util.Map.Entry<String, Point> entry : safeZones.entrySet()) {
+            if (!entry.getKey().startsWith(group) && entry.getValue().equals(location)) { //Check if not the agent's group and the point is in another SafeZone
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     // TODO: Check more
     public Point getSafeZoneLocation(String group) {
         for (java.util.Map.Entry<String, Point> entry : safeZones.entrySet()) {
@@ -109,7 +116,7 @@ public class Map {
 
     public void generateObstacles() {
         System.out.println("Generating Obstacles"); // debugging
-        int numObstacles = (int) (width * height * 0.04); // 4% of the map are obstacles (adjust as needed)
+        int numObstacles = (int) (width * height * 0.00); // 4% of the map are obstacles (adjust as needed)
 
         System.out.print("Obstacles:");
         for (int i = 0; i < numObstacles; i++) {

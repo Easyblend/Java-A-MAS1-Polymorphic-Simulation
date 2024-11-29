@@ -34,7 +34,7 @@ public class Human extends Agent {
         moveInDirection(map, direction, maxDistance);
 
         lastDirection = direction;
-        System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ")"+Reset);
+        System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset);
     }
 
 }
