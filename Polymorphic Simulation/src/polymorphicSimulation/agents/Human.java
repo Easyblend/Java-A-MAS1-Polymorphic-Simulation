@@ -19,8 +19,7 @@ public class Human extends Agent {
     @Override
     public void move(Map map) {
         if (getEp() <= 0) {
-            System.out.println(BrightBlue+name + " cannot move (EP = 0)"+Reset);
-
+            System.out.println(BrightBlue+name + " is Dead"+Reset);
             return;
         }
         System.out.println(BrightBlue+name + " starting move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset);
@@ -32,9 +31,9 @@ public class Human extends Agent {
 
         System.out.println(name + " planning to move " + maxDistance + " steps "+ direction +Reset); // debugging
 
-        Point newLocation = moveInDirection(map, direction, maxDistance);
+        moveInDirection(map, direction, maxDistance);
 
-        lastDirection = direction; // Update lastDirection
+        lastDirection = direction;
         System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ")"+Reset);
     }
 

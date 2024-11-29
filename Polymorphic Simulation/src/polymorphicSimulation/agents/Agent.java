@@ -42,10 +42,13 @@ public abstract class Agent {
         return map.isTileWithinBounds(newLocation);
     }
 
-    protected boolean TIleObstacle(Point newLocation, Map map) {
+    protected boolean TileObstacle(Point newLocation, Map map) {
         return map.isObstacleAt(newLocation);
     }
 
+    protected boolean TileDeadAgent(Point newLocation, Map map) {
+        return map.isDeadAgentAt(newLocation);
+    }
     protected void updateLocation(Point newLocation, Map map) {
             map.removeAgent(this.location); // Remove from old spot
             location = newLocation;
@@ -237,7 +240,7 @@ public abstract class Agent {
 //        return Objects.requireNonNullElseGet(newLocation, () -> new Point(location.x, location.y));
 //    }
 
-    protected Point moveInDirection(Map map, Direction direction, int maxDistance) {
+    protected void moveInDirection(Map map, Direction direction, int maxDistance) {
         System.out.println(this.name + " moveInDirection method initiated");
         Point currentLocation = new Point(location.x, location.y);
         Point newLocation = null;
@@ -246,32 +249,35 @@ public abstract class Agent {
 
             if (withinBounds(newLocation, map)) {
 
-                if (!TIleObstacle(newLocation, map)) {
-                    Agent otherAgent = map.getAgentAt(newLocation);  // Check if another agent is present at the target location
+                if (!TileObstacle(newLocation, map)) {
+                    System.out.println("!TileObstacle(newLocation, map): " + !TileObstacle(newLocation, map));
+                    if(!TileDeadAgent(newLocation, map)){
+                        System.out.println("!TileDeadAgent(newLocation, map): " + !TileDeadAgent(newLocation, map));
+                        Agent otherAgent = map.getAgentAt(newLocation);  // Check if another agent is present at the target location
 
-                    if (otherAgent != null && otherAgent != this) {
-                        if (otherAgent instanceof Master) { //Check if other agent is Master before interaction. If so, only transfer messages
-                            transferMessagesToMaster(map);
-                        } else {
-                            exchangeMessages(otherAgent, map);
+                        if (otherAgent != null && otherAgent != this) {
+                            if (otherAgent instanceof Master) { //Check if other agent is Master before interaction. If so, only transfer messages
+                                transferMessagesToMaster(map);
+                            } else {
+                                exchangeMessages(otherAgent, map);
+                            }
+                            break; // Stop further movement after interaction
                         }
-                        break; // Stop further movement after interaction
+
+                        updateEp(map, newLocation);
+                        currentLocation = newLocation; //The agent moves to the new location
+
+                        updateLocation(currentLocation, map);
+                        if (getEp() <= 0 && !(this instanceof Master)) { //Check if agent is dead after movement
+                            System.out.println(getName() + " becomeObstacle()");
+                            becomeObstacle(map);
+                            return; //Agent is dead, stop moving.
+                        }
+                        transferMessagesToMaster(map);
                     }
-
-                    currentLocation = newLocation; //The agent moves to the new location
-                    int epCost = map.isInSafeZone(currentLocation, group) ? 0 : 1; //No ep reduction in SafeZone
-                    setEp(Math.max(0, getEp() - epCost)); //Reduce ep after the movement
-                    updateLocation(currentLocation, map);
-                    if (getEp() <= 0 && !(this instanceof Master)) { //Check if agent is dead after movement
-                        System.out.println(getName() + " becomeObstacle()");
-                        becomeObstacle(map);
-                        break; //Agent is dead, stop moving.
-                    }
-
-                    transferMessagesToMaster(map);
-
-                } else { // If can't move due to obstacle or out of bounds
-                    System.out.println("No Move - Hit Obstacle"); //Combined message to show that the agent cannot move either due to obstacle or out of bounds
+                } else { // If can't move due to obstacle
+//                    if (get)
+                    System.out.println("No Move - Hit Obstacle");
                     break; //Stop if blocked
                 }
 
@@ -281,7 +287,7 @@ public abstract class Agent {
             }
 
         }
-        return Objects.requireNonNullElseGet(newLocation, () -> new Point(location.x, location.y));
+//        Objects.requireNonNullElseGet(newLocation, () -> new Point(location.x, location.y));
     }
 
     private Point calculateNextLocation(Point current, Direction direction) {
@@ -309,9 +315,9 @@ public abstract class Agent {
             setEp(Math.max(0, getEp() - manhattanDistance(location, newLocation))); // Ensure ep doesn't go below 0
             System.out.println(" ||| EP after set Ep: " + getEp());
 
-            if (this.ep <= 0){
-                becomeObstacle(map);
-            }
+//            if (this.ep <= 0){
+//                becomeObstacle(map);
+//            }
 
         } else {
             System.out.print("EP fully restored from "  + Red + getEp() + Reset);
@@ -320,16 +326,10 @@ public abstract class Agent {
         }
     }
 
-//    private void becomeObstacle(Map map) {
-//        System.out.println("becomeObstacle method initiated");
-//        map.addObstacle(new DeadAgent(this).location);
-//        map.removeAgent(this.location);
-//    }
-
     private void becomeObstacle(Map map) {
-        map.addDeadAgent(this.location, this.group); //Add to deadAgents Set.
-        map.addObstacle(this.location); //Add to obstacles Set.
-        map.removeAgent(this.location); //Remove the dead agent from the map
+        map.addDeadAgent(this.location, this.group);
+        map.addObstacle(this.location);
+        map.removeAgent(this.location);
     }
 
     public String getName() {
