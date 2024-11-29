@@ -31,7 +31,7 @@ public class Elf extends Agent {
 
         System.out.println(name + " planning to move " + maxDistance + " steps "+ direction +Reset); // debugging
 
-        Point newLocation = moveInDirection(map, direction, maxDistance);
+        moveInDirection(map, direction, maxDistance);
 
         lastDirection = direction;
         System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ")"+Reset);

@@ -29,7 +29,7 @@ public class Orc extends Agent {
 
         System.out.println(name + " planning to move 1 step "+ direction +Reset); // debugging
 
-        Point newLocation = moveInDirection(map, direction, 1); // Max distance is always 1 for King
+        moveInDirection(map, direction, 1); // Max distance is always 1 for King
 
         lastDirection = direction;
         System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ")"+Reset);

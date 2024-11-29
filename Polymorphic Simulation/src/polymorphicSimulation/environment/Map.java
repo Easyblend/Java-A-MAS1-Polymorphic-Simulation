@@ -50,6 +50,10 @@ public class Map {
         return grid[location.y][location.x] != null;
     }
 
+    public boolean isDeadAgentAt(Point location) {
+        return deadAgents.containsKey(location);
+    }
+
     public void addDeadAgent(Point location, String group) {
         this.deadAgents.put(location, group);
     }
@@ -178,29 +182,20 @@ public class Map {
 
                 Agent agentAt = getAgentAt(currentPoint);
                 if (agentAt != null) {
-                    if (agentAt.getEp() <= 0) { // Check for dead agents in the grid
-                        String deadAgentGroup = getDeadAgentGroup(currentPoint);
-                        char symbol = 'X';
-                        System.out.print(colorAgentSymbol(symbol, deadAgentGroup) + " " + Reset);
-
-                        printed = true;
-
-                    } else { //Print live agent
-                        System.out.print(colorAgentSymbol(getAgentSymbol(agentAt), agentAt.getGroup()) + "  " + Reset);
-                        printed = true;
-                    }
+                    System.out.print(colorAgentSymbol(getAgentSymbol(agentAt), agentAt.getGroup()) + "  " + Reset);
+                    printed = true;
                 }
 
-                // Check for obstacles and dead agents if no live agent is present
+                // Check for obstacles and dead agents
                 if (!printed) {
-                    if (deadAgents.containsKey(currentPoint)) { //This check is redundant, but is left as a failsafe.
+                    if (deadAgents.containsKey(currentPoint)) {
                         String deadAgentGroup = getDeadAgentGroup(currentPoint);
-                        char symbol = 'X'; // why two times
+                        char symbol = 'X';
                         System.out.print(colorAgentSymbol(symbol, deadAgentGroup) + "  " + Reset);
 
                         printed = true;
 
-                    } else if (obstacles.contains(currentPoint)) { // Print "#" for regular obstacles
+                    } else if (obstacles.contains(currentPoint)) {
                         System.out.print(Red + "#  " + Reset);
                         printed = true;
                     }
@@ -213,8 +208,6 @@ public class Map {
                             }
                         }
                     }
-
-
 
                     // Print ".  " for empty spaces
                     if (!printed) {
