@@ -77,6 +77,9 @@ public class Map {
         return false;
     }
 
+    public boolean isSafeZone(Point location) {
+        return safeZones.containsValue(location);
+    }
 
     // TODO: Check more
     public Point getSafeZoneLocation(String group) {

@@ -106,7 +106,7 @@ public abstract class Agent {
 
     // TODO: take unique messages first, then if there are still left to take but no unique, just delete the remaining from the loser
     private void transferMessages(Agent loser, Agent winner) { // Removed numMessages parameter
-        System.out.println("TransferMessage method initiated. Agent Winner: " + winner + ", agent loser: " + loser);
+        System.out.println("TransferMessage method initiated. Agent Winner: " + winner.getName() + ", agent loser: " + loser.getName());
 
         // Iterate through a copy of the loser's messages to avoid ConcurrentModificationException
         for (String message : new ArrayList<>(loser.messages)) { //Using a copy of loser.messages
