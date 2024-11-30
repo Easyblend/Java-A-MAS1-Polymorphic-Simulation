@@ -11,7 +11,7 @@ public class Main {
 
     private static final int MAP_WIDTH = 14;
     private static final int MAP_HEIGHT = 8;
-    private static final int MAX_AGENTS = 4; //per group
+    private static final int MAX_AGENTS = 4; // per group
     private static final int INITIAL_EP = 200;
     private static final int MAX_SIMULATION_STEPS = 100;
 
@@ -28,12 +28,12 @@ public class Main {
         // 2. Master Agent Creation and Placement
         System.out.println(Yellow+"Master Agent Creation and Placement Initiated"+Reset);
         placeMasters(map);
-        map.printMap();
         System.out.println(Green+"Master Agent Creation and Placement Done"+Reset);
 
         // 3. Agent Creation and Placement
         System.out.println(Yellow+"Agent Creation and Placement Initiated"+Reset);
         List<Agent> agents = createAgents(map);
+        map.printMap();
         System.out.println(Green+"Agent Creation and Placement Done"+Reset);
 
         // 4. Simulation Loop
@@ -58,11 +58,6 @@ public class Main {
 
         for (String group : groups) {
             for (int i = 0; i < MAX_AGENTS; i++) {
-                String groupName = group; //The group name of the agent
-                if (i < 9) { //The number of initial safeZones
-                    groupName = groupName + i; //Modify group name so that the agents are placed correctly to the initially designated safeZones.
-                }
-
                 Point location = findValidRandomSpot(map); //Helper method to find open spots
 
                 Agent agent = switch (group) {
@@ -73,7 +68,6 @@ public class Main {
                     default -> throw new IllegalStateException("Unexpected value: " + group);
                 };
 
-
                 agent.location = location; // Set location *after* agent creation.
                 map.placeAgent(agent);
                 agents.add(agent);
@@ -83,16 +77,6 @@ public class Main {
         return agents;
     }
 
-    private static void placeMasters(Map map) {
-        String[] groups = {"Human", "Elf", "Orc", "Goblin"};
-        for (String group : groups) {
-            Point location = map.getSafeZoneLocation(group);
-            Master master = SingletonMasterFactory.getMasterInstance(group, location, INITIAL_EP);
-            map.placeAgent(master);
-        }
-
-    }
-
     private static Point findValidRandomSpot(Map map) {
         Random random = new Random();
         Point location;
@@ -100,9 +84,19 @@ public class Main {
             int x = random.nextInt(MAP_WIDTH);
             int y = random.nextInt(MAP_HEIGHT);
             location = new Point(x, y);
-        } while (!map.isTileFree(location));
+        } while (!map.isTileFree(location) || map.isSafeZone(location));
 
         return location;
+    }
+
+
+    private static void placeMasters(Map map) {
+        String[] groups = {"Human", "Elf", "Orc", "Goblin"};
+        for (String group : groups) {
+            Point location = map.getSafeZoneLocation(group);
+            Master master = SingletonMasterFactory.getMasterInstance(group, location, INITIAL_EP);
+            map.placeAgent(master);
+        }
     }
 
     private static boolean runSimulation(Map map, List<Agent> agents) {
