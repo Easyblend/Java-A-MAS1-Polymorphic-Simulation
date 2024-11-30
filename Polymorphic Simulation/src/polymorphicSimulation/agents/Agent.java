@@ -46,10 +46,6 @@ public abstract class Agent {
         return map.isObstacleAt(newLocation);
     }
 
-    protected boolean TileDeadAgent(Point newLocation, Map map) {
-        return map.isDeadAgentAt(newLocation);
-    }
-
     protected void updateLocation(Point newLocation, Map map) {
         map.removeAgent(this.location); // Remove from old spot
         location = newLocation;
@@ -255,7 +251,7 @@ public abstract class Agent {
                         Agent otherAgent = map.getAgentAt(newLocation);  // Check if another agent is present at the target location
                         if (otherAgent != null && otherAgent != this) {
                             if (otherAgent instanceof Master) { //Check if other agent is Master before interaction. If so, only transfer messages
-                                transferMessagesToMaster(map);
+                                transferMessagesToMaster(map); // could be used if map with no safe zones
                             } else {
                                 exchangeMessages(otherAgent, map);
                             }

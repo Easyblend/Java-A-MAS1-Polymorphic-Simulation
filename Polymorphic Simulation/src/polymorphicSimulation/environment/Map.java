@@ -119,7 +119,7 @@ public class Map {
 
     public void generateObstacles() {
         System.out.println("Generating Obstacles"); // debugging
-        int numObstacles = (int) (width * height * 0.00); // 4% of the map are obstacles (adjust as needed)
+        int numObstacles = (int) (width * height * 0.04); // 4% of the map are obstacles (adjust as needed)
 
         System.out.print("Obstacles:");
         for (int i = 0; i < numObstacles; i++) {
@@ -192,7 +192,8 @@ public class Map {
 
                 Agent agentAt = getAgentAt(currentPoint);
                 if (agentAt != null) {
-                    System.out.print(colorAgentSymbol(getAgentSymbol(agentAt), agentAt.getGroup()) + "  " + Reset);
+                    System.out.print(colorAgentSymbol(getAgentSymbol(agentAt), agentAt.getGroup())
+                            + getAgentNumber(agentAt) + " " + Reset);
                     printed = true;
                 }
 
@@ -212,7 +213,7 @@ public class Map {
                     else {
                         for (var entry : safeZones.entrySet()) {
                             if (entry.getValue().equals(currentPoint)) {
-                                System.out.print("S" + entry.getKey().charAt(0) + " ");
+                                System.out.print("s" + entry.getKey().charAt(0) + " ");
                                 printed = true;
                                 break;
                             }
@@ -236,6 +237,12 @@ public class Map {
         return Character.toLowerCase(agent.group.charAt(0));
     }
 
+    private char getAgentNumber(Agent agent) {
+        if (agent instanceof Master){
+            return ' ';
+        }
+        return agent.name.charAt(agent.name.length() - 1);
+    }
     private String colorAgentSymbol(char inputChar, String group) {
         return switch (group) {
             case "Human" -> BrightBlue + inputChar;
