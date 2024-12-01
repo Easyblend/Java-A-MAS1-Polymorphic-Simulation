@@ -11,8 +11,8 @@ import static polymorphicSimulation.style.ColorInConsole.*;
 public class Goblin extends Agent {
     private final Random random = new Random();
 
-    public Goblin(String name, String group, Point location, int ep) {
-        super(name, group, location, ep);
+    public Goblin(String name, String group, Point location, int ep, String alliance) {
+        super(name, group, location, ep,alliance);
     }
 
     @Override
