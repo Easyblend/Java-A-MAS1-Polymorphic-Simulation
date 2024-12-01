@@ -12,8 +12,8 @@ import static polymorphicSimulation.style.ColorInConsole.*;
 public class Orc extends Agent {
     private final Random random = new Random();
 
-    public Orc(String name, String group, Point location, int ep) {
-        super(name, group, location, ep);
+    public Orc(String name, String group, Point location, int ep, String alliance) {
+        super(name, group, location, ep, alliance);
     }
 
     @Override

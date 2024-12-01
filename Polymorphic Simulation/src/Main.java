@@ -61,10 +61,10 @@ public class Main {
                 Point location = findValidRandomSpot(map); //Helper method to find open spots
 
                 Agent agent = switch (group) {
-                    case "Human" -> new Human("Human" + i, group, location, INITIAL_EP);
-                    case "Elf" -> new Elf("Elf" + i, group, location, INITIAL_EP);
-                    case "Orc" -> new Orc("Orc" + i, group, location, INITIAL_EP);
-                    case "Goblin" -> new Goblin("Goblin" + i, group, location, INITIAL_EP);
+                    case "Human" -> new Human("Human" + i, group, location, INITIAL_EP, "LightSide");
+                    case "Elf" -> new Elf("Elf" + i, group, location, INITIAL_EP, "LightSide");
+                    case "Orc" -> new Orc("Orc" + i, group, location, INITIAL_EP, "DarkSide");
+                    case "Goblin" -> new Goblin("Goblin" + i, group, location, INITIAL_EP, "DarkSide");
                     default -> throw new IllegalStateException("Unexpected value: " + group);
                 };
 
@@ -92,9 +92,13 @@ public class Main {
 
     private static void placeMasters(Map map) {
         String[] groups = {"Human", "Elf", "Orc", "Goblin"};
-        for (String group : groups) {
+        String[] alliances = {"LightSide", "LightSide", "DarkSide", "DarkSide"}; // Alliances corresponding to the groups
+
+        for (int i = 0; i < groups.length; i++) {
+            String group = groups[i];
+            String alliance = alliances[i];
             Point location = map.getSafeZoneLocation(group);
-            Master master = SingletonMasterFactory.getMasterInstance(group, location, INITIAL_EP);
+            Master master = SingletonMasterFactory.getMasterInstance(group, location, INITIAL_EP, alliance); // Pass alliance
             map.placeAgent(master);
         }
     }
@@ -133,10 +137,11 @@ public class Main {
 
     private static void printMasterMessages(Map map) {
         String[] groups = {"Human", "Elf", "Orc", "Goblin"};
+        String[] alliances = {"LightSide", "LightSide", "DarkSide", "DarkSide"};
 
-        for (String group : groups) {
-            Master master = SingletonMasterFactory.getMasterInstance(group, map.getSafeZoneLocation(group), INITIAL_EP);
-            System.out.println(master.name + " (Master " + group + ") messages: " + master.getMessages());
+        for (int i = 0; i < groups.length; i++) { //Use index-based loop
+            Master master = SingletonMasterFactory.getMasterInstance(groups[i], map.getSafeZoneLocation(groups[i]), INITIAL_EP, alliances[i]);
+            System.out.println(master.name + " (Master " + groups[i] + ") messages: " + master.getMessages());
         }
     }
 
@@ -159,13 +164,14 @@ public class Main {
 
     private static boolean checkWinCondition(Map map) {
         String[] groups = {"Human", "Elf", "Orc", "Goblin"};
+        String[] alliances = {"LightSide", "LightSide", "DarkSide", "DarkSide"};
         int totalMessages = Agent.getTotalMessages();
 
-        for (String group : groups) {
-            Master master = SingletonMasterFactory.getMasterInstance(group, map.getSafeZoneLocation(group), INITIAL_EP);
+        for (int i = 0; i < groups.length; i++) { //Use index-based loop
+            Master master = SingletonMasterFactory.getMasterInstance(groups[i], map.getSafeZoneLocation(groups[i]), INITIAL_EP, alliances[i]);
 
             if (master.getMessages().size() == totalMessages) {
-                System.out.println(Green+"Group " + group + " wins! (Master collected " +BackgroundBlue+Black+ "all messages - " + master.getMessages().size() + "/" + totalMessages + ")" +Reset);
+                System.out.println(Green+"Group " + groups[i] + " wins! (Master collected " +BackgroundBlue+Black+ "all messages - " + master.getMessages().size() + "/" + totalMessages + ")" +Reset);
                 printMasterMessages(map);
                 return true; // End the simulation
             }
@@ -175,19 +181,20 @@ public class Main {
 
     private static void determineWinner(Map map) {
         String[] groups = {"Human", "Elf", "Orc", "Goblin"};
+        String[] alliances = {"LightSide", "LightSide", "DarkSide", "DarkSide"};
         List<String> winningGroups = new ArrayList<>(); // List to store potential multiple winners
         int maxMessages = 0;
 
-        for (String group : groups) {
-            Master master = SingletonMasterFactory.getMasterInstance(group, map.getSafeZoneLocation(group), INITIAL_EP);
+        for (int i = 0; i < groups.length; i++) { // Use index-based loop
+            Master master = SingletonMasterFactory.getMasterInstance(groups[i], map.getSafeZoneLocation(groups[i]), INITIAL_EP, alliances[i]);
             int numMessages = master.getMessages().size();
 
             if (numMessages > maxMessages) {
                 winningGroups.clear();      // Clear previous winners
-                winningGroups.add(group);   // Add current group as the sole winner (so far)
+                winningGroups.add(groups[i]);   // Add current group as the sole winner (so far)
                 maxMessages = numMessages; // Update maxMessages
             } else if (numMessages == maxMessages && numMessages > 0) {
-                winningGroups.add(group); // Add current group to list of winners (tie)
+                winningGroups.add(groups[i]); // Add current group to list of winners (tie)
             }
         }
 

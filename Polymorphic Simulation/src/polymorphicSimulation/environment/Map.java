@@ -163,21 +163,6 @@ public class Map {
         return null;
     }
 
-        public Agent getAgentAt0(Point location) {
-        System.out.print("Agent at (" + location.x + ", " + location.y + "): ");
-        if(grid[location.y][location.x] != null) {
-            System.out.println(grid[location.y][location.x].getName());
-        } else {
-            System.out.println("none");
-        }
-        if (isTileWithinBounds(location)) {
-            return grid[location.y][location.x];
-        }
-        return null;
-    }
-
-
-
     public void removeAgent(Point location) {
         if (isTileWithinBounds(location)) {
             grid[location.y][location.x] = null;
@@ -192,8 +177,12 @@ public class Map {
 
                 Agent agentAt = getAgentAt(currentPoint);
                 if (agentAt != null) {
-                    System.out.print(colorAgentSymbol(getAgentSymbol(agentAt), agentAt.getGroup())
-                            + getAgentNumber(agentAt) + " " + Reset);
+                    if (isInSafeZone(agentAt.location, agentAt.getGroup())){
+                        System.out.print(colorSafeZone(getAgentSymbol(agentAt)) + getAgentSymbol(agentAt) + getAgentNumber(agentAt) + " " + Reset);
+                    } else {
+                        System.out.print(colorAgentSymbol(getAgentSymbol(agentAt), agentAt.getGroup())
+                                + getAgentNumber(agentAt) + " " + Reset);
+                    }
                     printed = true;
                 }
 
@@ -213,7 +202,7 @@ public class Map {
                     else {
                         for (var entry : safeZones.entrySet()) {
                             if (entry.getValue().equals(currentPoint)) {
-                                System.out.print("s" + entry.getKey().charAt(0) + " ");
+                                System.out.print(colorSafeZone(entry.getKey().charAt(0)) + ".  "+Reset);
                                 printed = true;
                                 break;
                             }
@@ -253,13 +242,13 @@ public class Map {
         };
     }
 
-    private String colorDeadAgentSymbol(char inputChar) {
+    private String colorSafeZone(char inputChar) {
         return switch (inputChar) {
-            case 'h' -> BrightBlue+'x';
-            case 'e' -> BrightMagenta+'x';
-            case 'o' -> BrightGreen+'x';
-            case 'g' -> BrightYellow+'x';
-            default -> String.valueOf('x');
+            case 'H', 'h' -> BackgroundBlue;
+            case 'E', 'e' -> BackgroundMagenta;
+            case 'O', 'o' -> BackgroundGreen;
+            case 'G', 'g' -> BackgroundYellow;
+            default -> " " + inputChar;
         };
     }
 

@@ -5,8 +5,8 @@ import polymorphicSimulation.environment.Point;
 
 public class Master extends Agent {
 
-    public Master(String name, String group, Point location, int ep) {
-        super(name, group, location, ep);
+    public Master(String name, String group, Point location, int ep, String alliance) {
+        super(name, group, location, ep, alliance);
     }
 
     @Override

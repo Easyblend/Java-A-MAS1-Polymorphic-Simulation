@@ -13,8 +13,8 @@ public class SingletonMasterFactory {
         // Private constructor to prevent instantiation
     }
 
-    public static Master getMasterInstance(String group, Point location, int initialEP) {
-        return masterInstances.computeIfAbsent(group, k -> new Master("Master" + k, k, location, initialEP));
+    public static Master getMasterInstance(String group, Point location, int initialEp, String alliance) {
+        return masterInstances.computeIfAbsent(group, k -> new Master("Master" + k, k, location, initialEp, alliance));
     }
 
 }
