@@ -25,5 +25,5 @@ public class Master extends Agent {
         }
     }
 
-    // Can add other Master-specific methods here, like checking for a win condition
+    // Maybe add methods like checking for a win condition later
 }

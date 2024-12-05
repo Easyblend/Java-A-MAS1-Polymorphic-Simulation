@@ -4,6 +4,7 @@ import polymorphicSimulation.environment.Map;
 import polymorphicSimulation.environment.Point;
 import polymorphicSimulation.utils.Direction;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -24,7 +25,12 @@ public class Human extends Agent {
         }
         System.out.println(BrightBlue+name + " starting move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset);
 
-        List<Direction> possibleDirections = List.of(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST);
+        List<Direction> possibleDirections = new ArrayList<>(List.of(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST));
+        if(lastHitObstacle) {
+            System.out.println("removing " + lastDirection);
+            possibleDirections.remove(lastDirection);
+            System.out.println("done removing last direction");
+        }
         Direction direction = possibleDirections.get(random.nextInt(possibleDirections.size()));
 
         int maxDistance = random.nextInt(3) + 1; // 1-3 tiles

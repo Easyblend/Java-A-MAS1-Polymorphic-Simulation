@@ -4,6 +4,7 @@ import polymorphicSimulation.environment.Map;
 import polymorphicSimulation.environment.Point;
 import polymorphicSimulation.utils.Direction;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -24,7 +25,12 @@ public class Orc extends Agent {
         }
         System.out.println(BrightGreen+name + " starting move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset);
 
-        List<Direction> possibleDirections = List.of(Direction.values());
+        List<Direction> possibleDirections = new ArrayList<>(List.of(Direction.values()));
+        if(lastHitObstacle) {
+            System.out.println("removing " + lastDirection);
+            possibleDirections.remove(lastDirection);
+            System.out.println("done removing last direction");
+        }
         Direction direction = possibleDirections.get(random.nextInt(possibleDirections.size()));
 
         System.out.println(name + " planning to move 1 step "+ direction +Reset); // debugging
