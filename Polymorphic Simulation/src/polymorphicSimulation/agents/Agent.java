@@ -1,5 +1,8 @@
 package polymorphicSimulation.agents;
 
+//package polymorphicSimulation.agents;
+
+
 import polymorphicSimulation.environment.Map;
 import polymorphicSimulation.environment.Point;
 import polymorphicSimulation.utils.Direction;
@@ -19,6 +22,7 @@ public abstract class Agent {
     private final String alliance;
     public List<String> messages;
     public Direction lastDirection;
+    public boolean lastHitObstacle = false;
     private static final int MAX_MESSAGES = 5; // Max messages per agent
     private static int totalMessages = 0; // Keep track of total messages
     protected final Random random = new Random();
@@ -281,6 +285,7 @@ public abstract class Agent {
 
     protected void moveInDirection(Map map, Direction direction, int maxDistance) {
         System.out.println(this.name + " moveInDirection method initiated");
+        System.out.println("lastHitObstacle: " + lastHitObstacle);
         Point currentLocation = new Point(location.x, location.y);
         Point newLocation = null;
         for (int i = 0; i < maxDistance; i++) {
@@ -302,6 +307,7 @@ public abstract class Agent {
 
                         updateEp(map, newLocation);
                         currentLocation = newLocation; //The agent moves to the new location
+                        lastHitObstacle = false;
 
                         updateLocation(currentLocation, map);
                         if (getEp() <= 0 && !(this instanceof Master)) { //Check if agent is dead after movement
@@ -365,6 +371,7 @@ public abstract class Agent {
             case NORTH, SOUTH, EAST, WEST -> stepsLeft;
             case NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST -> 2 * stepsLeft;
         };
+        lastHitObstacle = true;
         System.out.print("EP before hitting barrier = " + getEp());
         setEp(Math.max(0, getEp() - epLost));
         System.out.println(" --> Lost " + epLost + " --> current EP = " + getEp());

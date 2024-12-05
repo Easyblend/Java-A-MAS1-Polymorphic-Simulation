@@ -81,7 +81,7 @@ public class Map {
         return safeZones.containsValue(location);
     }
 
-    // TODO: Check more
+    // TODO: Check more .....................
     public Point getSafeZoneLocation(String group) {
         for (java.util.Map.Entry<String, Point> entry : safeZones.entrySet()) {
             if (entry.getKey().equals(group)) {

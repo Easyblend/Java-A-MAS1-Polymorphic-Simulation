@@ -4,6 +4,8 @@ import polymorphicSimulation.environment.Map;
 import polymorphicSimulation.environment.Point;
 import polymorphicSimulation.utils.Direction;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import static polymorphicSimulation.style.ColorInConsole.*;
@@ -24,8 +26,14 @@ public class Goblin extends Agent {
         System.out.println(BrightYellow+name + " starting move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset); // debugging
 
         // Random movement (any direction, 1-3 tiles)
-        Direction direction = Direction.values()[random.nextInt(Direction.values().length)]; // Any direction
-        int maxDistance = random.nextInt(3) + 1;
+        List<Direction> possibleDirections = new ArrayList<>(List.of(Direction.values()));
+        if(lastHitObstacle) {
+            System.out.println(lastDirection + " is blocked (obstacle)");
+            possibleDirections.remove(lastDirection);
+        }
+        Direction direction = possibleDirections.get(random.nextInt(possibleDirections.size()));
+
+        int maxDistance = random.nextInt(3) + 1; // 1-3 tiles
 
         System.out.println(name + " planning to move " + maxDistance + " steps "+ direction +Reset); // debugging
 

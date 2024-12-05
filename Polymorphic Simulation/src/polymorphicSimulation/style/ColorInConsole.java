@@ -1,6 +1,7 @@
 package polymorphicSimulation.style;
 
 public class ColorInConsole {
+
     public static String Black = "\u001b[30m";
     public static String Red = "\u001b[31m";
     public static String Green = "\u001b[32m";
@@ -21,10 +22,10 @@ public class ColorInConsole {
 
     public static String BackgroundBlack = "\u001b[40m";
     public static String BackgroundRed = "\u001b[41m";
-    public static String BackgroundGreen = "\u001b[42m";
-    public static String BackgroundYellow = "\u001b[43m";
-    public static String BackgroundBlue = "\u001b[44m";
-    public static String BackgroundMagenta = "\u001b[45m";
+    public static String BackgroundGreen = "\u001b[42;1m";
+    public static String BackgroundYellow = "\u001b[43;1m";
+    public static String BackgroundBlue = "\u001b[44;1m";
+    public static String BackgroundMagenta = "\u001b[45;1m";
     public static String BackgroundCyan = "\u001b[46m";
     public static String BackgroundWhite = "\u001b[47m";
     public static String BackgroundBrightBlack = "\u001b[40;1m";

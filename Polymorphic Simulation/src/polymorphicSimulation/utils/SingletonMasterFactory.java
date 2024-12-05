@@ -1,5 +1,6 @@
 package polymorphicSimulation.utils;
 
+import org.w3c.dom.ls.LSOutput;
 import polymorphicSimulation.agents.Master;
 import polymorphicSimulation.environment.Point;
 
@@ -18,3 +19,15 @@ public class SingletonMasterFactory {
     }
 
 }
+
+//public class SingletonALaClasse {
+//    private static SingletonALaClasse lUnique;
+//    private SingletonALaClasse() {};
+//    public static SingletonALaClasse getInstance() {
+//        if (lUnique==null) {
+//            lUnique = new SingletonALaClasse();
+//        }
+//        return lUnique;
+//    }
+//}
+
