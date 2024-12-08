@@ -154,9 +154,6 @@ public class Map {
     }
 
     public Agent getAgentAt(Point location) {
-        if(grid[location.y][location.x] != null) {
-            grid[location.y][location.x].getName();
-        }
         if (isTileWithinBounds(location)) {
             return grid[location.y][location.x];
         }
