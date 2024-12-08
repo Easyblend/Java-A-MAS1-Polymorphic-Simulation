@@ -24,7 +24,8 @@ public class Human extends Agent {
             return;
         }
 
-        System.out.println(BrightBlue+name + " starting move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset);
+        System.out.println(BrightBlue+name + " starting move at (" + location.x + ", " + location.y + ") with EP: "
+                + getEp() + ". Messages: " + getMessages().size()+Reset);
 
         List<Direction> possibleDirections = getFilteredDirections(map); // Get filtered directions
 
@@ -41,7 +42,8 @@ public class Human extends Agent {
         moveInDirection(map, direction, maxDistance);
 
         lastDirection = direction;
-        System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset);
+        System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ") with EP: "
+                + getEp() +  ". Messages: " + getMessages().size()+Reset);
     }
 
     private List<Direction> getFilteredDirections(Map map) {
@@ -49,6 +51,7 @@ public class Human extends Agent {
 
         if (lastHitObstacle) {
             filteredDirections.remove(lastDirection); // Remove last direction if agent last hit an obstacle.
+            System.out.println("Avoided " + lastDirection + " - last obstacle hit direction");
             lastHitObstacle = false;
         }
 

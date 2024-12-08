@@ -11,9 +11,10 @@ public class Main {
 
     private static final int MAP_WIDTH = 14;
     private static final int MAP_HEIGHT = 8;
-    private static final int MAX_AGENTS = 1; // per group
-    private static final int INITIAL_EP = 20;
+    private static final int MAX_AGENTS = 4; // per group
+    private static final int INITIAL_EP = 100;
     private static final int MAX_SIMULATION_STEPS = 100;
+    private static final boolean SHOW_INFO = false;
 
 
     public static void main(String[] args) {
@@ -21,9 +22,6 @@ public class Main {
         System.out.println(Yellow+"Map Setup Initiated"+Reset);
         Map map = new Map(MAP_WIDTH, MAP_HEIGHT);
         System.out.println(Green+"Map Setup Done"+Reset);
-
-        // 1.1 checking zones
-//        System.out.println(map.getSafeZoneLocation());
 
         // 2. Master Agent Creation and Placement
         System.out.println(Yellow+"Master Agent Creation and Placement Initiated"+Reset);
@@ -48,7 +46,6 @@ public class Main {
 
         // 6. Display Final Info
         printFinalResults(agents);
-
     }
 
     private static List<Agent> createAgents(Map map) {
@@ -68,7 +65,7 @@ public class Main {
                     default -> throw new IllegalStateException("Unexpected value: " + group);
                 };
 
-                agent.location = location; // Set location *after* agent creation.
+                agent.location = location; // Set location after agent creation.
                 map.placeAgent(agent);
                 agents.add(agent);
 
@@ -110,9 +107,11 @@ public class Main {
             System.out.println("Simulation Step: " + (step + 1));
 
             // Print master messages at the start of each step
-            printMasterMessages(map);
 
-            printAgentStatus(agents);
+            if(SHOW_INFO){
+                printMasterMessages(map);
+                printAgentStatus(agents);
+            }
 
             Collections.shuffle(agents); // Randomize agent order
 
@@ -157,7 +156,9 @@ public class Main {
     private static void printFinalResults(List<Agent> agents){
         for (Agent agent : agents) {
             if(!(agent instanceof Master)) {
-                System.out.println(agent.name + " has " + agent.getMessages().size() + " messages.");
+                if (SHOW_INFO) {
+                    System.out.println(agent.name + " has " + agent.getMessages().size() + " messages.");
+                }
             }
         }
     }
