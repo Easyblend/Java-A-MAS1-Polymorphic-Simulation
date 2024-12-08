@@ -50,27 +50,10 @@ public abstract class Agent {
     }
 
     protected void updateLocation(Point newLocation, Map map) {
-        map.removeAgent(this.location); // Remove from old spot
+        map.removeAgent(this.location);
         location = newLocation;
-        map.placeAgent(this); // Add to new Spot
+        map.placeAgent(this);
     }
-
-//    public void exchangeMessages(Agent other, Map map) {
-//        System.out.println("exchangeMessages method initiated"); // Debug print
-//        System.out.println("this.group.equals(other.group: " + this.group + " - " + other.group);
-//        if (this.group.equals(other.group)) { // Allies
-//            other.messages.stream()
-//                    .filter(msg -> !this.messages.contains(msg))
-//                    .forEach(this.messages::add);
-//            System.out.println(this.name + " (" + this.group + ") met ally " + other.name + " and shared messages.");
-//
-//        } else if (!map.isInSafeZone(this.location, this.group) && !map.isInSafeZone(other.location, other.group)) {
-//            // Enemies (and not in SafeZone) - Battle
-//            System.out.println(this.name + " (" + this.group + ") battled " + other.name + "."); // Print before battle
-//            battle(other);
-//            System.out.println("Result of the battle: " + this.name + " has " + this.messages.size() + ", " + other.name + " has " + other.messages.size() + " messages");
-//        }
-//    }
 
     public void exchangeMessages(Agent other, Map map) {
         System.out.println("exchangeMessages method initiated"); // Debug print
@@ -82,9 +65,9 @@ public abstract class Agent {
 
         } else if (!map.isInSafeZone(this.location, this.group) && !map.isInSafeZone(other.location, other.group)) {
             // Different group, different alliance, not in safe zone - Battle
-            System.out.println(Cyan+this.name + " (" + this.group + ") of " + this.getMessages().size() + " messages, battled " + other.name + " (" + other.group + ") of " + other.getMessages().size() + " messages."+Reset);
+            System.out.println(Cyan + this.name + " (" + this.group + ") of " + this.getMessages().size() + " messages, battled " + other.name + " (" + other.group + ") of " + other.getMessages().size() + " messages." + Reset);
             battle(other);
-            System.out.println(Cyan+"Result of the battle: " + this.name + " has " + this.messages.size() + ", " + other.name + " has " + other.messages.size() + " messages"+Reset);
+            System.out.println(Cyan + "Result of the battle: " + this.name + " has " + this.messages.size() + ", " + other.name + " has " + other.messages.size() + " messages" + Reset);
         }
     }
 
@@ -92,22 +75,22 @@ public abstract class Agent {
         Set<String> combinedMessages = new HashSet<>(this.messages); // Use a Set to automatically handle duplicates
         combinedMessages.addAll(other.messages);      // Add all of the other agent's messages (more efficient this way)
 
-        System.out.print(Cyan+this.name + " (" + this.group + ") met his fellow " + other.name + " and unioned messages."+Reset);
-        System.out.print(Cyan+"Before union: " + this.name + ": " + this.messages.size() + " messages, " + other.name + ": " + other.messages.size() + " messages"+Reset);
+        System.out.print(Cyan + this.name + " (" + this.group + ") met his fellow " + other.name + " and unioned messages." + Reset);
+        System.out.print(Cyan + "Before union: " + this.name + ": " + this.messages.size() + " messages, " + other.name + ": " + other.messages.size() + " messages" + Reset);
 
         this.messages = new ArrayList<>(combinedMessages);  // Update my messages
         other.messages = new ArrayList<>(combinedMessages); // Update the other agent's messages
 
-        System.out.println(Cyan+"After union: Both have " + this.messages.size() + " messages"+Reset);
+        System.out.println(Cyan + "After union: Both have " + this.messages.size() + " messages" + Reset);
 
     }
 
     private void exchangeAllianceMessages(Agent other) { //New method
-        System.out.println(Cyan+this.name + " (" + this.group + ") met " + other.name + " from allied group ("+ other.getGroup() + ") and exchanged messages."+Reset);
+        System.out.println(Cyan + this.name + " (" + this.group + ") met " + other.name + " from allied group (" + other.getGroup() + ") and exchanged messages." + Reset);
 
         int numMessagesToExchange = random.nextInt(3) + 1;  // Exchange 1-3 messages
 
-        System.out.print(Cyan+"Before exchange: " + this.name + " has " + this.messages.size() + ", " + other.name + " has " + other.messages.size() + ". "+Reset);
+        System.out.print(Cyan + "Before exchange: " + this.name + " has " + this.messages.size() + ", " + other.name + " has " + other.messages.size() + ". " + Reset);
 
         List<String> myMessagesCopy = new ArrayList<>(this.messages); // Make copies of messages to avoid ConcurrentModificationException
         List<String> otherMessagesCopy = new ArrayList<>(other.messages);
@@ -116,7 +99,7 @@ public abstract class Agent {
         transferUniqueMessages(myMessagesCopy, other, numMessagesToExchange);
         transferUniqueMessages(otherMessagesCopy, this, numMessagesToExchange);
 
-        System.out.println(Cyan+"After exchange: " + this.name + " has " + this.messages.size() + ", " + other.name + "has " + other.messages.size()+Reset);
+        System.out.println(Cyan + "After exchange: " + this.name + " has " + this.messages.size() + ", " + other.name + "has " + other.messages.size() + Reset);
 
     }
 
@@ -140,18 +123,16 @@ public abstract class Agent {
         String myChoice = options[random.nextInt(3)];
         String otherChoice = options[random.nextInt(3)];
 
-        System.out.print(Cyan+this.getName() + " chose " + myChoice + ", " + other.getName() + " chose: " + otherChoice + " ||| "+Reset);
+        System.out.print(Cyan + this.getName() + " chose " + myChoice + ", " + other.getName() + " chose: " + otherChoice + " ||| " + Reset);
 
         int result = compareChoices(myChoice, otherChoice);
 
         if (result == 1) { // won
-//            transferMessages(other, this, random.nextInt(other.messages.size() + 1) ); // Transfer up to all messages
             transferMessages(other, this);
         } else if (result == -1) { // lost
-//            transferMessages(this, other, random.nextInt(this.messages.size() + 1) ); // Transfer up to all messages
             transferMessages(this, other);
         } else {
-            System.out.print(Cyan+"Tie, no message transfer. "+Reset);
+            System.out.print(Cyan + "Tie, no message transfer. " + Reset);
         }
     }
 
@@ -167,10 +148,9 @@ public abstract class Agent {
         }
     }
 
-
     // TODO: take unique messages first, then if there are still left to take but no unique, just delete the remaining from the loser
     private void transferMessages(Agent loser, Agent winner) { // Removed numMessages parameter
-        System.out.println(Cyan+"Winner: " + winner.getName() + ", loser: " + loser.getName()+Reset);
+        System.out.println(Cyan + "Winner: " + winner.getName() + ", loser: " + loser.getName() + Reset);
 
         // Iterate through a copy of the loser's messages to avoid ConcurrentModificationException
         for (String message : new ArrayList<>(loser.messages)) { //Using a copy of loser.messages
@@ -248,41 +228,6 @@ public abstract class Agent {
         }
     }
 
-    // TODO: now fix the obstacles interaction
-    // TODO: check if transferMessagesToMaster is working correctly in all the safe zones
-//    protected Point moveInDirection(Map map, Direction direction, int maxDistance) {
-//        Point currentLocation = new Point(location.x, location.y);
-//        Point newLocation = null;
-//        for (int i = 0; i < maxDistance; i++) {
-//            newLocation = calculateNextLocation(currentLocation, direction); // Calculate the next potential location - 1 step
-//
-//            System.out.print("Potential next step: (" + newLocation.x + ", " + newLocation.y + ") ||| "); // debugging
-//
-//            if (withinBounds(newLocation, map)) {
-//                Agent otherAgent = map.getAgentAt(newLocation); // Check for other agents at the target location BEFORE moving
-//                if (otherAgent != null && otherAgent != this) { // TODO: fix when the otherAgent is a Master or safe-zone
-//                    exchangeMessages(otherAgent, map);
-//                    break; // Stop further movement for this step after interaction.
-//                } else if (map.getObstacles().contains(newLocation)) { // check if there is obstacle in the next potential location
-//                    System.out.println("Obstacle encountered at (" + newLocation.x + ", " + newLocation.y + ")");
-//                    break;
-//                }
-//
-//                updateEp(map, newLocation); // Update the agent's EP.
-//
-//                currentLocation = newLocation; // Update currentLocation after checking for agents and exchangeMessages.
-//                updateLocation(currentLocation, map); // Then update location on map
-//                transferMessagesToMaster(map); //Transfer messages after each step. Since it has a check if the agent is in a SafeZone it will work even if it is called here
-//            } else {
-//                System.out.println("Cannot Move Outside");
-//                break; // Stop if blocked (outside map)
-//            }
-//
-//        }
-//
-//        return Objects.requireNonNullElseGet(newLocation, () -> new Point(location.x, location.y));
-//    }
-
     protected void moveInDirection(Map map, Direction direction, int maxDistance) {
         System.out.println(this.name + " moveInDirection method initiated");
         System.out.println("lastHitObstacle: " + lastHitObstacle);
@@ -292,46 +237,34 @@ public abstract class Agent {
             int stepsLeft = maxDistance - i;
             newLocation = calculateNextLocation(currentLocation, direction);
 
-            if (withinBounds(newLocation, map)) {
-                if (!TileObstacle(newLocation, map)) {
-                    if (!map.isInOtherSafeZone(newLocation, group)) {
-                        Agent otherAgent = map.getAgentAt(newLocation);  // Check if another agent is present at the target location
-                        if (otherAgent != null && otherAgent != this) {
-                            if (otherAgent instanceof Master) { //Check if other agent is Master before interaction. If so, only transfer messages
-                                transferMessagesToMaster(map); // could be used if map with no safe zones
-                            } else {
-                                exchangeMessages(otherAgent, map);
-                            }
-                            break; // Stop further movement after interaction
-                        }
-
-                        updateEp(map, newLocation);
-                        currentLocation = newLocation; //The agent moves to the new location
-                        lastHitObstacle = false;
-
-                        updateLocation(currentLocation, map);
-                        if (getEp() <= 0 && !(this instanceof Master)) { //Check if agent is dead after movement
-                            System.out.println(getName() + " becomeObstacle()");
-                            becomeObstacle(map);
-                            return; //Agent is dead, stop moving.
-                        }
-                        transferMessagesToMaster(map);
-
-                    } else {
-                        System.out.println("No Move - Hit Other's SafeZone");
-                        barrierHit(map, direction, stepsLeft);
-                        break; //Stop if blocked
-                    }
-                } else { // If can't move due to obstacle
-                    System.out.println("No Move - Hit Obstacle");
-                    barrierHit(map, direction, stepsLeft);
-                    break; //Stop if blocked
-                }
-            } else {
+            if (!withinBounds(newLocation, map)) {
                 System.out.println("No Move - Outside Bounds");
                 break;
             }
+            if (TileObstacle(newLocation, map)) {
+                System.out.println("No Move - Hit Obstacle");
+                barrierHit(map, direction, stepsLeft);
+                break; //Stop if blocked
+            }
+            if (map.isInOtherSafeZone(newLocation, group)) {
+                System.out.println("No Move - Hit Other's SafeZone");
+                barrierHit(map, direction, stepsLeft);
+                break; //Stop if blocked
+            }
+            Agent otherAgent = map.getAgentAt(newLocation);  // Check if another agent is present at the target location
+            System.out.println("currentLocation: (" + currentLocation.x + ", " + currentLocation.y + "), newLocation: (" + newLocation.x + ", " + newLocation.y + ")");
+            if (otherAgent != null && otherAgent != this) {
+                handleAgentInteraction(otherAgent, map);
+                break; // Stop further movement after interaction
+            }
 
+            updateLocation(newLocation, map); // updating location before updating EP
+            if(updateEp(map, currentLocation)){// updateEp and check death (true for death)
+                break;
+            }
+            currentLocation = newLocation;
+
+            transferMessagesToMaster(map);
         }
     }
 
@@ -351,19 +284,24 @@ public abstract class Agent {
         return new Point(current.x + dx, current.y + dy);
     }
 
-    // TODO: fix this method
-    protected void updateEp(Map map, Point newLocation) {
-        if (!map.isInSafeZone(newLocation, group)) {
-            System.out.print("EP before setEp: " + getEp());
-            System.out.print(" ||| manhattanDistance " + manhattanDistance(location, newLocation));
-            setEp(Math.max(0, getEp() - manhattanDistance(location, newLocation))); // Ensure ep doesn't go below 0
-            System.out.println(" ||| EP after set Ep: " + getEp());
-
-        } else {
+    protected boolean updateEp(Map map, Point oldLocation) { //return true if agent dead
+        if (map.isInSafeZone(location, group)) {
             System.out.print("EP fully restored from " + Red + getEp() + Reset);
             setEp(getInitialEp());
             System.out.println(" to " + Green + getEp() + Reset + " Safe Zone");
+        } else {
+            System.out.print("EP before setEp: " + getEp());
+            System.out.print(" ||| manhattanDistance " + manhattanDistance(location, oldLocation));
+            setEp(Math.max(0, getEp() - manhattanDistance(location, oldLocation))); // Ensure ep doesn't go below 0
+            System.out.println(" ||| EP after: " + getEp());
+
+            if (getEp() <= 0 && !(this instanceof Master)) { //Check if agent is dead after movement
+                System.out.println(getName() + " becomeObstacle()");
+                becomeObstacle(map);
+                return true;
+            }
         }
+        return false;
     }
 
     protected void barrierHit(Map map, Direction direction, int stepsLeft) {
@@ -376,12 +314,25 @@ public abstract class Agent {
         setEp(Math.max(0, getEp() - epLost));
         System.out.println(" --> Lost " + epLost + " --> current EP = " + getEp());
 
+        // TODO: this is repeated with updateEp, try to combine later
+        if (getEp() <= 0 && !(this instanceof Master)) { //Check if agent is dead after movement
+            System.out.println(getName() + " becomeObstacle()");
+            becomeObstacle(map);
+        }
     }
 
     private void becomeObstacle(Map map) {
         map.addDeadAgent(this.location, this.group);
         map.addObstacle(this.location);
         map.removeAgent(this.location);
+    }
+
+    private void handleAgentInteraction(Agent otherAgent, Map map) {
+        if (otherAgent instanceof Master) { //Check if other agent is Master before interaction. If so, only transfer messages
+            transferMessagesToMaster(map); // could be used if map with no safe zones
+        } else {
+            exchangeMessages(otherAgent, map);
+        }
     }
 
     public String getName() {
@@ -410,11 +361,6 @@ public abstract class Agent {
 
     public List<String> getMessages() {
         return new ArrayList<>(messages); // Return copy
-    }
-
-
-    public Direction getLastDirection() {
-        return lastDirection;
     }
 
     public static int getTotalMessages() {
