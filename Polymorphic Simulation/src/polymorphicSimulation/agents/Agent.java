@@ -69,6 +69,8 @@ public abstract class Agent {
             battle(other);
             System.out.println(Cyan + "Result of the battle: " + this.name + " has " + this.messages.size() + ", " + other.name + " has " + other.messages.size() + " messages" + Reset);
         }
+        System.out.println("After interaction, " + other.name + ": transferMessageToMaster");
+        other.transferMessagesToMaster(map);
     }
 
     private void unionMessages(Agent other) {
@@ -76,7 +78,7 @@ public abstract class Agent {
         combinedMessages.addAll(other.messages);      // Add all of the other agent's messages (more efficient this way)
 
         System.out.print(Cyan + this.name + " (" + this.group + ") met his fellow " + other.name + " and unioned messages." + Reset);
-        System.out.print(Cyan + "Before union: " + this.name + ": " + this.messages.size() + " messages, " + other.name + ": " + other.messages.size() + " messages" + Reset);
+        System.out.print(Cyan + " Before union: " + this.name + ": " + this.messages.size() + " messages, " + other.name + ": " + other.messages.size() + " messages" + Reset);
 
         this.messages = new ArrayList<>(combinedMessages);  // Update my messages
         other.messages = new ArrayList<>(combinedMessages); // Update the other agent's messages
@@ -152,14 +154,46 @@ public abstract class Agent {
     private void transferMessages(Agent loser, Agent winner) { // Removed numMessages parameter
         System.out.println(Cyan + "Winner: " + winner.getName() + ", loser: " + loser.getName() + Reset);
 
-        // Iterate through a copy of the loser's messages to avoid ConcurrentModificationException
-        for (String message : new ArrayList<>(loser.messages)) { //Using a copy of loser.messages
+        if(loser.messages.isEmpty()){ // ensure loser has at least 1 message
+            System.out.println("Loser " + loser.getName() + " has no messages to transfer");
+            return;
+        }
+        Random random = new Random();
+        int numMessagesToTransfer = random.nextInt(loser.messages.size()) + 1 ;;
+
+        int uniqueMessagesTransferred = 0;
+
+        System.out.print("Winner will take " + numMessagesToTransfer + " messages out of " + loser.messages.size());  // debugging
+
+        // Transfer unique messages first
+        Iterator<String> iterator = loser.messages.iterator(); //Use iterator to avoid ConcurrentModificationException
+        while (iterator.hasNext() && uniqueMessagesTransferred < numMessagesToTransfer) {
+            String message = iterator.next();
             if (!winner.messages.contains(message)) {
                 winner.messages.add(message);
+                iterator.remove(); //Safe removal of the message using the iterator
+                uniqueMessagesTransferred++;
             }
         }
-        loser.messages.clear(); // Clear all messages from the loser after transfer
 
+        System.out.println(" ||| Unique messages taken: " + uniqueMessagesTransferred); // debugging
+
+        // If not enough unique messages were transferred, remove remaining from loser
+        int remainingMessagesToTransfer = numMessagesToTransfer - uniqueMessagesTransferred;
+        if (remainingMessagesToTransfer > 0) {
+            removeRandomMessages(loser, remainingMessagesToTransfer);
+        }
+    }
+
+    private void removeRandomMessages(Agent loser, int numToRemove) {
+        Random random = new Random();
+
+        System.out.println("Messages left to remove: " + numToRemove);
+
+        for (int i = 0; i < numToRemove && !loser.messages.isEmpty(); i++) {
+            loser.messages.remove(random.nextInt(loser.messages.size()));
+
+        }
     }
 
     public Direction getSafeZoneDirection(Map map) {
@@ -210,27 +244,17 @@ public abstract class Agent {
     public void transferMessagesToMaster(Map map) {
         if (this instanceof Master) return; // Masters don't transfer messages to themselves
 
-        System.out.print("transferMessagesToMaster method initiated");
-
         Master master = SingletonMasterFactory.getMasterInstance(group, map.getSafeZoneLocation(group), initialEp, this.alliance);
-
-        System.out.println(" ||| map.isInSafeZone: " + map.isInSafeZone(location, group)); // debugging
 
         if (map.isInSafeZone(location, group)) {
             for (String message : getMessages()) {
-//                System.out.println("Master " + master.name + "receive Message method initiated"); // debugging
                 master.receiveMessage(message);
-//                this.messages.remove(message); // Option: Removing the message from the agent after transferring it to master, this will make it hard to collect all messages
-//                System.out.println(this.name + " transferred a message to Master " + master.name + "."); // debugging - Print transfer
-//                break; // Option: Transfer a single message per encounter
             }
-            System.out.println("Done transferring"); // debugging
+            System.out.println("Transferred messages to master: " + master.getMessages().size() + " messages"); // debugging
         }
     }
 
     protected void moveInDirection(Map map, Direction direction, int maxDistance) {
-        System.out.println(this.name + " moveInDirection method initiated");
-        System.out.println("lastHitObstacle: " + lastHitObstacle);
         Point currentLocation = new Point(location.x, location.y);
         Point newLocation = null;
         for (int i = 0; i < maxDistance; i++) {
@@ -252,7 +276,6 @@ public abstract class Agent {
                 break; //Stop if blocked
             }
             Agent otherAgent = map.getAgentAt(newLocation);  // Check if another agent is present at the target location
-            System.out.println("currentLocation: (" + currentLocation.x + ", " + currentLocation.y + "), newLocation: (" + newLocation.x + ", " + newLocation.y + ")");
             if (otherAgent != null && otherAgent != this) {
                 handleAgentInteraction(otherAgent, map);
                 break; // Stop further movement after interaction
@@ -329,7 +352,7 @@ public abstract class Agent {
 
     private void handleAgentInteraction(Agent otherAgent, Map map) {
         if (otherAgent instanceof Master) { //Check if other agent is Master before interaction. If so, only transfer messages
-            transferMessagesToMaster(map); // could be used if map with no safe zones
+            transferMessagesToMaster(map); // could be used if map has no safe zones
         } else {
             exchangeMessages(otherAgent, map);
         }

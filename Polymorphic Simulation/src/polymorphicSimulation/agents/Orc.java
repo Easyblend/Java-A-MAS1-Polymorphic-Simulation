@@ -24,7 +24,8 @@ public class Orc extends Agent {
             return;
         }
 
-        System.out.println(BrightGreen+name + " starting move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset);
+        System.out.println(BrightGreen+name + " starting move at (" + location.x + ", " + location.y + ") with EP: "
+                + getEp() + ". Messages: " + getMessages().size()+Reset);
 
         List<Direction> possibleDirections = getFilteredDirections(map); // Get filtered directions
 
@@ -40,7 +41,8 @@ public class Orc extends Agent {
         moveInDirection(map, direction, 1);
 
         lastDirection = direction;
-        System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset);
+        System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ") with EP: "
+                + getEp() +  ". Messages: " + getMessages().size()+Reset);
     }
 
     private List<Direction> getFilteredDirections(Map map) {

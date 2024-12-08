@@ -23,7 +23,8 @@ public class Elf extends Agent {
             System.out.println(BrightMagenta+name + " is Dead"+Reset);
             return;
         }
-        System.out.println(BrightMagenta+name + " starting move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset);
+        System.out.println(BrightMagenta+name + " starting move at (" + location.x + ", " + location.y + ") with EP: "
+                + getEp() + ". Messages: " + getMessages().size()+Reset);
 
         List<Direction> possibleDirections = getFilteredDirections(map); // Get filtered directions
 
@@ -40,7 +41,8 @@ public class Elf extends Agent {
         moveInDirection(map, direction, maxDistance);
 
         lastDirection = direction;
-        System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ") with EP: " + getEp()+Reset);
+        System.out.println(Red+name + " ending move at (" + location.x + ", " + location.y + ") with EP: "
+                + getEp() +  ". Messages: " + getMessages().size()+Reset);
     }
 
     private List<Direction> getFilteredDirections(Map map) {
