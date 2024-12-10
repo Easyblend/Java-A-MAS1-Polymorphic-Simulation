@@ -54,7 +54,6 @@ public class Main {
     private static List<Agent> createAgents(Map map) {
         List<Agent> agents = new ArrayList<>();
         String[] groups = {"Human", "Elf", "Orc", "Goblin"};
-        Random random = new Random();
 
         for (String group : groups) {
             for (int i = 0; i < MAX_AGENTS; i++) {
