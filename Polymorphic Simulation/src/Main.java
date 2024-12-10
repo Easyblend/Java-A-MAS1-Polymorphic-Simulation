@@ -103,7 +103,6 @@ public class Main {
     }
 
     private static boolean runSimulation(Map map, List<Agent> agents) {
-//        Random random = new Random();
 
         for (int step = 0; step < MAX_SIMULATION_STEPS; step++) {
             System.out.println("Simulation Step: " + (step + 1));
@@ -130,6 +129,7 @@ public class Main {
             try {
                 Thread.sleep(0); // Delay as needed (in milliseconds)
             } catch (InterruptedException e) {
+                System.out.println("something went wrong");
                 e.printStackTrace();
             }
         }

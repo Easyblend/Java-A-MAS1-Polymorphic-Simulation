@@ -20,7 +20,7 @@ public abstract class Agent {
     public List<String> messages;
     public Direction lastDirection;
     public boolean lastHitObstacle = false;
-    private static final int MAX_MESSAGES = 5; // Max messages per agent
+    private static final int MAX_MESSAGES = 5; // Max messages generated per agent
     private static int totalMessages = 0; // Keep track of total messages
     protected final Random random = new Random();
 
@@ -73,7 +73,7 @@ public abstract class Agent {
             lastHitObstacle = false;
         }
 
-        if (getEp() * 1.0 / getInitialEp() <= 0.2) {
+        if (getEp() != 0 && getEp() * 1.0 / getInitialEp() <= 0.2) {
             Direction toSafeZone = getSafeZoneDirection(map);
             System.out.println(getColor()+getName() + " EP <= 0.2 - SafeZone direction: " + toSafeZone+Reset);
             if (toSafeZone != null) {
@@ -102,10 +102,6 @@ public abstract class Agent {
     private int getMaxDistance() {
         return random.nextInt(3) + 1; // Default distance 1-3, can be adjusted
     }
-
-
-
-
 
     protected boolean withinBounds(Point newLocation, Map map) {
         return map.isTileWithinBounds(newLocation);
@@ -413,7 +409,7 @@ public abstract class Agent {
     private void handleAgentInteraction(Agent otherAgent, Map map) {
         if (otherAgent instanceof Master) { //Check if other agent is Master before interaction. If so, only transfer messages
             System.out.println(BrightBlack+BackgroundBrightCyan+getName() + " had the honor of having a cup of tea with his master!"+Reset);
-            transferMessagesToMaster(map); // could be used if map has no safe zones
+            transferMessagesToMaster(map); // useful if there's no safe zone around the master
         } else {
             exchangeMessages(otherAgent, map);
         }
