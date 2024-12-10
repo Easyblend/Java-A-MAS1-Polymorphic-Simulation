@@ -16,6 +16,7 @@ public class Main {
     private static final int INITIAL_EP = 100;
     private static final int MAX_SIMULATION_STEPS = 100;
     private static final boolean SHOW_INFO = true;
+    private static final boolean AUTO_MODE = false; // Global variable to control auto or manual mode
 
 
     public static void main(String[] args) {
@@ -103,12 +104,12 @@ public class Main {
     }
 
     private static boolean runSimulation(Map map, List<Agent> agents) {
+        Scanner scanner = new Scanner(System.in); // Scanner to capture user input
 
         for (int step = 0; step < MAX_SIMULATION_STEPS; step++) {
             System.out.println("Simulation Step: " + (step + 1));
 
-            // Print master messages at the start of each step
-
+            // Print masters' and agents' messages at the start of each step
             if(SHOW_INFO){
                 printMasterMessages(map);
                 printAgentStatus(agents);
@@ -124,13 +125,20 @@ public class Main {
 
             // Check for win condition after each step
             if (checkWinCondition(map)) {
+
                 return true;
             }
-            try {
-                Thread.sleep(0); // Delay as needed (in milliseconds)
-            } catch (InterruptedException e) {
-                System.out.println("something went wrong");
-                e.printStackTrace();
+            // Handling auto/manual mode
+            if (AUTO_MODE) {
+                try {
+                    Thread.sleep(500); // Automatic delay
+                } catch (InterruptedException e) {
+                    System.out.println("Error during auto-simulation delay");
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("Press ENTER to proceed to the next step...");
+                scanner.nextLine(); // Wait for user input
             }
         }
         return false; // No winner found during simulation
