@@ -5,12 +5,10 @@ import polymorphicSimulation.environment.Point;
 import polymorphicSimulation.utils.Direction;
 
 import java.util.List;
-import java.util.Random;
 
 import static polymorphicSimulation.style.ColorInConsole.*;
 
 public class Orc extends Agent {
-    private final Random random = new Random();
 
     public Orc(String name, String group, Point location, int ep, String alliance) {
         super(name, group, location, ep, alliance);

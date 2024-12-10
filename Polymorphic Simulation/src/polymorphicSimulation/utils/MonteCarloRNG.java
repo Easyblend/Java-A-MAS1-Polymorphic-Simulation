@@ -97,24 +97,32 @@ public class MonteCarloRNG {
       }
 
       /**
-       * Generates a random integer within a specified range [min, max]
+       * Generates a random integer within a specified range [min, max)
        * 
        * @param min     The minimum value of the range (inclusive)
-       * @param max     The maximum value of the range (inclusive)
+       * @param max     The maximum value of the range (exclusive)
        * @return a random number within the specified range.
        */
       public int nextInt(int min, int max) {
+        if (min > max) {
+          throw new IllegalArgumentException("max must be strictly positive and greater than min");
+        }
+        max = max - 1;
         return min + (int) (nextRandom() * (max - min + 1));
       }
 
       /**
-       * Generates a random integer within a specified range [0, max]
+       * Generates a random integer within a specified range [0, max)
        * 
-       * @param max     The maximum value of the range (inclusive)
+       * @param max     The maximum value of the range (exclusive)
        * @return a random number within the specified range.
        */
       public int nextInt(int max) {
-        return (int) (nextRandom() * (max + 1));
+        if (max <= 0) {
+          throw new IllegalArgumentException("max must be strictly positive.");
+        }
+        max = max - 1;
+        return (int) (nextRandom() * (max));
       }
 
       /**

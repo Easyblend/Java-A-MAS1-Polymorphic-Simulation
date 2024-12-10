@@ -2,6 +2,7 @@ package polymorphicSimulation.environment;
 
 import polymorphicSimulation.agents.Agent;
 import polymorphicSimulation.agents.Master;
+import polymorphicSimulation.utils.MonteCarloRNG;
 
 import java.util.*;
 
@@ -15,7 +16,7 @@ public class Map {
     private final Set<Point> obstacles;
     private final java.util.Map<Point, String> deadAgents;
     private final java.util.Map<String, Point> safeZones; // Use the full name of Map since we created another Map class
-    private final Random random = new Random();
+    private final MonteCarloRNG random = new MonteCarloRNG();
 
     public Map(int width, int height) {
         this.width = width;

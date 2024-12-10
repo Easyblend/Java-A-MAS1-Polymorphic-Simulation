@@ -2,6 +2,7 @@ import polymorphicSimulation.agents.*;
 import polymorphicSimulation.environment.Map;
 import polymorphicSimulation.environment.Point;
 import polymorphicSimulation.utils.SingletonMasterFactory;
+import polymorphicSimulation.utils.MonteCarloRNG;
 
 import java.util.*;
 
@@ -54,11 +55,10 @@ public class Main {
     private static List<Agent> createAgents(Map map) {
         List<Agent> agents = new ArrayList<>();
         String[] groups = {"Human", "Elf", "Orc", "Goblin"};
-        Random random = new Random();
 
         for (String group : groups) {
             for (int i = 0; i < MAX_AGENTS; i++) {
-                Point location = findValidRandomSpot(map); //Helper method to find open spots
+                Point location = findValidMonteCarloRNGSpot(map); //Helper method to find open spots
 
                 Agent agent = switch (group) {
                     case "Human" -> new Human("Human" + i, group, location, INITIAL_EP, "LightSide");
@@ -76,12 +76,12 @@ public class Main {
         return agents;
     }
 
-    private static Point findValidRandomSpot(Map map) {
-        Random random = new Random();
+    private static Point findValidMonteCarloRNGSpot(Map map) {
+        MonteCarloRNG MonteCarloRNG = new MonteCarloRNG();
         Point location;
         do {
-            int x = random.nextInt(MAP_WIDTH);
-            int y = random.nextInt(MAP_HEIGHT);
+            int x = MonteCarloRNG.nextInt(MAP_WIDTH);
+            int y = MonteCarloRNG.nextInt(MAP_HEIGHT);
             location = new Point(x, y);
         } while (!map.isTileFree(location) || map.isSafeZone(location));
 
@@ -114,7 +114,7 @@ public class Main {
                 printAgentStatus(agents);
             }
 
-            Collections.shuffle(agents); // Randomize agent order
+            Collections.shuffle(agents); // MonteCarloRNGize agent order
 
             for (Agent agent : agents) {
                 agent.move(map);
