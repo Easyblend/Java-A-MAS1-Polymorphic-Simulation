@@ -29,6 +29,4 @@ public class Master extends Agent {
             messages.add(message);
         }
     }
-
-    // Maybe add methods like checking for a win condition later
 }

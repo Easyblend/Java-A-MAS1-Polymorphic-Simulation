@@ -4,7 +4,6 @@ import polymorphicSimulation.environment.Map;
 import polymorphicSimulation.environment.Point;
 import polymorphicSimulation.utils.Direction;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
