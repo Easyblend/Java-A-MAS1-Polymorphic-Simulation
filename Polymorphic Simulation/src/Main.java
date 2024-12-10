@@ -14,7 +14,7 @@ public class Main {
     private static final int MAX_AGENTS = 4; // per group
     private static final int INITIAL_EP = 100;
     private static final int MAX_SIMULATION_STEPS = 100;
-    private static final boolean SHOW_INFO = false;
+    private static final boolean SHOW_INFO = true;
 
 
     public static void main(String[] args) {
@@ -45,7 +45,10 @@ public class Main {
         }
 
         // 6. Display Final Info
-        printFinalResults(agents);
+        if (SHOW_INFO) {
+            printFinalResults(agents);
+        }
+
     }
 
     private static List<Agent> createAgents(Map map) {
@@ -68,7 +71,6 @@ public class Main {
                 agent.location = location; // Set location after agent creation.
                 map.placeAgent(agent);
                 agents.add(agent);
-
             }
         }
         return agents;
@@ -156,9 +158,7 @@ public class Main {
     private static void printFinalResults(List<Agent> agents){
         for (Agent agent : agents) {
             if(!(agent instanceof Master)) {
-                if (SHOW_INFO) {
-                    System.out.println(agent.name + " has " + agent.getMessages().size() + " messages.");
-                }
+                System.out.println(agent.name + " has " + agent.getMessages().size() + " messages.");
             }
         }
     }
