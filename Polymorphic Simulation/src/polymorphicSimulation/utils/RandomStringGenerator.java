@@ -2,6 +2,7 @@ package polymorphicSimulation.utils;
 
 import java.util.Random;
 
+// Can be used instead of creating the simple messages (M1, M2, M3 ...)
 public class RandomStringGenerator {
 
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

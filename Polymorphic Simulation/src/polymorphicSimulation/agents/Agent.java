@@ -1,8 +1,5 @@
 package polymorphicSimulation.agents;
 
-//package polymorphicSimulation.agents;
-
-
 import polymorphicSimulation.environment.Map;
 import polymorphicSimulation.environment.Point;
 import polymorphicSimulation.utils.Direction;
@@ -41,6 +38,75 @@ public abstract class Agent {
 
     public abstract void move(Map map); //Polymorphic method for agent movement
 
+    public abstract String getColor();  // Abstract method for color
+
+    // Common movement and logging logic
+    protected void commonMoveLogic(Map map, List<Direction> possibleDirections) {
+        if (getEp() <= 0) {
+            System.out.println(getColor()+getDeadMessage()+Reset);
+            return;
+        }
+
+        System.out.println(getColor()+getStartMoveMessage()+Reset);
+
+        if (possibleDirections.isEmpty()) {
+            System.out.println(name + " cannot move (no possible directions)");
+            return;
+        }
+
+        Direction direction = possibleDirections.get(random.nextInt(possibleDirections.size()));
+        int maxDistance = getMaxDistance(); // You can vary maxDistance if needed
+
+        System.out.println(name + " planning to move " + maxDistance + " steps " + direction); // debugging
+        moveInDirection(map, direction, maxDistance);
+
+        lastDirection = direction;
+        System.out.println(Red+getEndMoveMessage()+Reset);
+    }
+
+    // Common logic for filtered directions
+    protected List<Direction> getFilteredDirections(Map map, List<Direction> allDirections) {
+        List<Direction> filteredDirections = new ArrayList<>(allDirections);
+
+        if (lastHitObstacle) {
+            filteredDirections.remove(lastDirection); // Remove last direction if agent last hit an obstacle.
+            lastHitObstacle = false;
+        }
+
+        if (getEp() * 1.0 / getInitialEp() <= 0.2) {
+            Direction toSafeZone = getSafeZoneDirection(map);
+            System.out.println(getColor()+getName() + " EP <= 0.2 - SafeZone direction: " + toSafeZone+Reset);
+            if (toSafeZone != null) {
+                filteredDirections.clear(); // Prioritize direction to SafeZone
+                filteredDirections.add(toSafeZone);
+            }
+        }
+        return filteredDirections;
+    }
+
+    // Helper methods to generate common messages
+    private String getDeadMessage() {
+        return name + " is Dead";
+    }
+
+    private String getStartMoveMessage() {
+        return name + " starting move at (" + location.x + ", " + location.y + ") with EP: "
+                + getEp() + ". Messages: " + getMessages().size();
+    }
+
+    private String getEndMoveMessage() {
+        return name + " ending move at (" + location.x + ", " + location.y + ") with EP: "
+                + getEp() + ". Messages: " + getMessages().size();
+    }
+
+    private int getMaxDistance() {
+        return random.nextInt(3) + 1; // Default distance 1-3, can be adjusted
+    }
+
+
+
+
+
     protected boolean withinBounds(Point newLocation, Map map) {
         return map.isTileWithinBounds(newLocation);
     }
@@ -56,7 +122,6 @@ public abstract class Agent {
     }
 
     public void exchangeMessages(Agent other, Map map) {
-        System.out.println("exchangeMessages method initiated"); // Debug print
         if (this.group.equals(other.group)) { // Same group - Union of messages
             unionMessages(other);
 
@@ -69,8 +134,6 @@ public abstract class Agent {
             battle(other);
             System.out.println(Cyan + "Result of the battle: " + this.name + " has " + this.messages.size() + ", " + other.name + " has " + other.messages.size() + " messages" + Reset);
         }
-        System.out.println("After interaction, " + other.name + ": transferMessageToMaster");
-        other.transferMessagesToMaster(map);
     }
 
     private void unionMessages(Agent other) {
@@ -83,7 +146,7 @@ public abstract class Agent {
         this.messages = new ArrayList<>(combinedMessages);  // Update my messages
         other.messages = new ArrayList<>(combinedMessages); // Update the other agent's messages
 
-        System.out.println(Cyan + "After union: Both have " + this.messages.size() + " messages" + Reset);
+        System.out.println(Cyan + ", After union: Both have " + this.messages.size() + " messages" + Reset);
 
     }
 
@@ -101,8 +164,7 @@ public abstract class Agent {
         transferUniqueMessages(myMessagesCopy, other, numMessagesToExchange);
         transferUniqueMessages(otherMessagesCopy, this, numMessagesToExchange);
 
-        System.out.println(Cyan + "After exchange: " + this.name + " has " + this.messages.size() + ", " + other.name + "has " + other.messages.size() + Reset);
-
+        System.out.println(Cyan + "After exchange: " + this.name + " has " + this.messages.size() + ", " + other.name + " has " + other.messages.size() + Reset);
     }
 
     private void transferUniqueMessages(List<String> sourceMessages, Agent recipient, int numMessages) {
@@ -150,12 +212,11 @@ public abstract class Agent {
         }
     }
 
-    // TODO: take unique messages first, then if there are still left to take but no unique, just delete the remaining from the loser
     private void transferMessages(Agent loser, Agent winner) { // Removed numMessages parameter
         System.out.println(Cyan + "Winner: " + winner.getName() + ", loser: " + loser.getName() + Reset);
 
         if(loser.messages.isEmpty()){ // ensure loser has at least 1 message
-            System.out.println("Loser " + loser.getName() + " has no messages to transfer");
+            System.out.println(Cyan+"Loser " + loser.getName() + " has no messages to transfer"+Reset);
             return;
         }
         Random random = new Random();
@@ -163,7 +224,7 @@ public abstract class Agent {
 
         int uniqueMessagesTransferred = 0;
 
-        System.out.print("Winner will take " + numMessagesToTransfer + " messages out of " + loser.messages.size());  // debugging
+        System.out.print(Cyan+"Winner will take " + numMessagesToTransfer + " messages out of " + loser.messages.size()+Reset);  // debugging
 
         // Transfer unique messages first
         Iterator<String> iterator = loser.messages.iterator(); //Use iterator to avoid ConcurrentModificationException
@@ -176,7 +237,7 @@ public abstract class Agent {
             }
         }
 
-        System.out.println(" ||| Unique messages taken: " + uniqueMessagesTransferred); // debugging
+        System.out.println(Cyan+" ||| Unique messages taken: " + uniqueMessagesTransferred+Reset); // debugging
 
         // If not enough unique messages were transferred, remove remaining from loser
         int remainingMessagesToTransfer = numMessagesToTransfer - uniqueMessagesTransferred;
@@ -188,11 +249,10 @@ public abstract class Agent {
     private void removeRandomMessages(Agent loser, int numToRemove) {
         Random random = new Random();
 
-        System.out.println("Messages left to remove: " + numToRemove);
+        System.out.println(Cyan+"Messages left to remove: " + numToRemove+Reset);
 
         for (int i = 0; i < numToRemove && !loser.messages.isEmpty(); i++) {
             loser.messages.remove(random.nextInt(loser.messages.size()));
-
         }
     }
 
@@ -226,7 +286,7 @@ public abstract class Agent {
             if (dx < 0 && dy > 0) return Direction.NORTHWEST;
             if (dx > 0 && dy < 0) return Direction.SOUTHEAST;
             if (dx < 0 && dy < 0) return Direction.SOUTHWEST;
-            return null; // This shouldn't happen if dx == dy != 0, but it is important to always return something
+            return null;
         }
     }
 
@@ -247,10 +307,11 @@ public abstract class Agent {
         Master master = SingletonMasterFactory.getMasterInstance(group, map.getSafeZoneLocation(group), initialEp, this.alliance);
 
         if (map.isInSafeZone(location, group)) {
+            int numOfMessages = master.getMessages().size();
             for (String message : getMessages()) {
                 master.receiveMessage(message);
             }
-            System.out.println("Transferred messages to master: " + master.getMessages().size() + " messages"); // debugging
+            System.out.println("Transferred to master. Before " + master.getName() + " had " + numOfMessages + " messages. After: " + master.getMessages().size() + " messages"); // debugging
         }
     }
 
@@ -279,15 +340,14 @@ public abstract class Agent {
             if (otherAgent != null && otherAgent != this) {
                 handleAgentInteraction(otherAgent, map);
                 break; // Stop further movement after interaction
+            } else {
+                updateLocation(newLocation, map); // updating location before updating EP
+                if(updateEp(map, currentLocation)){// updateEp and check death (true for death)
+                    break;
+                }
+                currentLocation = newLocation;
+                transferMessagesToMaster(map);
             }
-
-            updateLocation(newLocation, map); // updating location before updating EP
-            if(updateEp(map, currentLocation)){// updateEp and check death (true for death)
-                break;
-            }
-            currentLocation = newLocation;
-
-            transferMessagesToMaster(map);
         }
     }
 
@@ -352,6 +412,7 @@ public abstract class Agent {
 
     private void handleAgentInteraction(Agent otherAgent, Map map) {
         if (otherAgent instanceof Master) { //Check if other agent is Master before interaction. If so, only transfer messages
+            System.out.println(BrightBlack+BackgroundBrightCyan+getName() + " had the honor of having a cup of tea with his master!"+Reset);
             transferMessagesToMaster(map); // could be used if map has no safe zones
         } else {
             exchangeMessages(otherAgent, map);

@@ -15,6 +15,11 @@ public class Master extends Agent {
     }
 
     @Override
+    public String getColor() {
+        return null;
+    }
+
+    @Override
     protected void generateMessages() {
 //        No messages generated for Masters
     }

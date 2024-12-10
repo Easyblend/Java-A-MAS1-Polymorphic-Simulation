@@ -47,10 +47,6 @@ public class Map {
         return grid[location.y][location.x] != null;
     }
 
-    public boolean isDeadAgentAt(Point location) {
-        return deadAgents.containsKey(location);
-    }
-
     public void addDeadAgent(Point location, String group) {
         this.deadAgents.put(location, group);
     }
@@ -81,7 +77,6 @@ public class Map {
         return safeZones.containsValue(location);
     }
 
-    // TODO: Check more .....................
     public Point getSafeZoneLocation(String group) {
         for (java.util.Map.Entry<String, Point> entry : safeZones.entrySet()) {
             if (entry.getKey().equals(group)) {
@@ -95,7 +90,6 @@ public class Map {
         System.out.println("addObstacle method initiated. Adding obstacle at location: (" + location.x + ", " + location.y + ")");
         obstacles.add(location);
     }
-
 
     private void generateSafeZones(int sizeX, int sizeY) {
         defineSafeZone("Human", 0, 0, 1, 1, sizeX, sizeY);
@@ -121,7 +115,7 @@ public class Map {
         System.out.println("Generating Obstacles"); // debugging
         int numObstacles = (int) (width * height * 0.04); // 4% of the map are obstacles (adjust as needed)
 
-        System.out.print("Obstacles:");
+        System.out.println("Obstacles:");
         for (int i = 0; i < numObstacles; i++) {
             int x = random.nextInt(width);
             int y = random.nextInt(height);
@@ -140,17 +134,6 @@ public class Map {
     public void placeAgent(Agent agent) {
             grid[agent.location.y][agent.location.x] = agent;
             System.out.println(agent.name + " placed at (" + agent.location.x + ", " + agent.location.y + ")"); // into - game
-    }
-
-    private Point findValidRandomSpot() {
-        Random random = new Random();
-        Point newLocation;
-        do {
-            int x = random.nextInt(width);
-            int y = random.nextInt(height);
-            newLocation = new Point(x, y);
-        } while (!isTileFree(newLocation)); // Keep looking until free and in bounds spot is found
-        return newLocation;
     }
 
     public Agent getAgentAt(Point location) {
@@ -248,9 +231,4 @@ public class Map {
             default -> " " + inputChar;
         };
     }
-
-    public Set<Point> getObstacles(){
-        return obstacles;
-    }
-
 }
