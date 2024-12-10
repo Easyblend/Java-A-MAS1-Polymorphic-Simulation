@@ -4,6 +4,7 @@ import polymorphicSimulation.environment.Map;
 import polymorphicSimulation.environment.Point;
 import polymorphicSimulation.utils.Direction;
 import polymorphicSimulation.utils.SingletonMasterFactory;
+import polymorphicSimulation.utils.MonteCarloRNG;
 
 import java.util.*;
 
@@ -22,7 +23,7 @@ public abstract class Agent {
     public boolean lastHitObstacle = false;
     private static final int MAX_MESSAGES = 5; // Max messages generated per agent
     private static int totalMessages = 0; // Keep track of total messages
-    protected final Random random = new Random();
+    protected final MonteCarloRNG MonteCarloRNG = new MonteCarloRNG();
 
     public Agent(String name, String group, Point location, int ep, String alliance) {
         this.name = name;
@@ -54,7 +55,7 @@ public abstract class Agent {
             return;
         }
 
-        Direction direction = possibleDirections.get(random.nextInt(possibleDirections.size()));
+        Direction direction = possibleDirections.get(MonteCarloRNG.nextInt(possibleDirections.size()));
         int maxDistance = getMaxDistance(); // You can vary maxDistance if needed
 
         System.out.println(name + " planning to move " + maxDistance + " steps " + direction); // debugging
@@ -100,7 +101,7 @@ public abstract class Agent {
     }
 
     private int getMaxDistance() {
-        return random.nextInt(3) + 1; // Default distance 1-3, can be adjusted
+        return MonteCarloRNG.nextInt(3) + 1; // Default distance 1-3, can be adjusted
     }
 
     protected boolean withinBounds(Point newLocation, Map map) {
@@ -149,7 +150,7 @@ public abstract class Agent {
     private void exchangeAllianceMessages(Agent other) { //New method
         System.out.println(Cyan + this.name + " (" + this.group + ") met " + other.name + " from allied group (" + other.getGroup() + ") and exchanged messages." + Reset);
 
-        int numMessagesToExchange = random.nextInt(3) + 1;  // Exchange 1-3 messages
+        int numMessagesToExchange = MonteCarloRNG.nextInt(3) + 1;  // Exchange 1-3 messages
 
         System.out.print(Cyan + "Before exchange: " + this.name + " has " + this.messages.size() + ", " + other.name + " has " + other.messages.size() + ". " + Reset);
 
@@ -164,10 +165,10 @@ public abstract class Agent {
     }
 
     private void transferUniqueMessages(List<String> sourceMessages, Agent recipient, int numMessages) {
-        Random random = new Random();
+        MonteCarloRNG MonteCarloRNG = new MonteCarloRNG();
 
         for (int i = 0; i < numMessages && !sourceMessages.isEmpty(); i++) {
-            String message = sourceMessages.remove(random.nextInt(sourceMessages.size()));
+            String message = sourceMessages.remove(MonteCarloRNG.nextInt(sourceMessages.size()));
 
             if (!recipient.messages.contains(message)) {
                 recipient.messages.add(message);
@@ -179,9 +180,9 @@ public abstract class Agent {
 
     private void battle(Agent other) {
         String[] options = {"stone", "leaf", "scissors"};
-        Random random = new Random();
-        String myChoice = options[random.nextInt(3)];
-        String otherChoice = options[random.nextInt(3)];
+        MonteCarloRNG MonteCarloRNG = new MonteCarloRNG();
+        String myChoice = options[MonteCarloRNG.nextInt(3)];
+        String otherChoice = options[MonteCarloRNG.nextInt(3)];
 
         System.out.print(Cyan + this.getName() + " chose " + myChoice + ", " + other.getName() + " chose: " + otherChoice + " ||| " + Reset);
 
@@ -215,8 +216,8 @@ public abstract class Agent {
             System.out.println(Cyan+"Loser " + loser.getName() + " has no messages to transfer"+Reset);
             return;
         }
-        Random random = new Random();
-        int numMessagesToTransfer = random.nextInt(loser.messages.size()) + 1 ;;
+        MonteCarloRNG MonteCarloRNG = new MonteCarloRNG();
+        int numMessagesToTransfer = MonteCarloRNG.nextInt(loser.messages.size()) + 1 ;;
 
         int uniqueMessagesTransferred = 0;
 
@@ -238,17 +239,17 @@ public abstract class Agent {
         // If not enough unique messages were transferred, remove remaining from loser
         int remainingMessagesToTransfer = numMessagesToTransfer - uniqueMessagesTransferred;
         if (remainingMessagesToTransfer > 0) {
-            removeRandomMessages(loser, remainingMessagesToTransfer);
+            removeMonteCarloRNGMessages(loser, remainingMessagesToTransfer);
         }
     }
 
-    private void removeRandomMessages(Agent loser, int numToRemove) {
-        Random random = new Random();
+    private void removeMonteCarloRNGMessages(Agent loser, int numToRemove) {
+        MonteCarloRNG MonteCarloRNG = new MonteCarloRNG();
 
         System.out.println(Cyan+"Messages left to remove: " + numToRemove+Reset);
 
         for (int i = 0; i < numToRemove && !loser.messages.isEmpty(); i++) {
-            loser.messages.remove(random.nextInt(loser.messages.size()));
+            loser.messages.remove(MonteCarloRNG.nextInt(loser.messages.size()));
         }
     }
 
@@ -287,7 +288,7 @@ public abstract class Agent {
     }
 
     protected void generateMessages() {
-        int numMessages = random.nextInt(MAX_MESSAGES) + 1; // Generates 1 to MAX_MESSAGES
+        int numMessages = MonteCarloRNG.nextInt(MAX_MESSAGES) + 1; // Generates 1 to MAX_MESSAGES
 
         for (int i = 0; i < numMessages; i++) {
             String newMessage = "M" + totalMessages++;
